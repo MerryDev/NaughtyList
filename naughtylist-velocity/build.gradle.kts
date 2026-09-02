@@ -58,7 +58,7 @@ tasks {
             )
         }
         downloadPlugins {
-            url("https://download.luckperms.net/1624/velocity/LuckPerms-Velocity-5.5.81.jar")
+            url("https://download.luckperms.net/1668/velocity/LuckPerms-Velocity-5.5.81.jar")
         }
     }
 

@@ -3,7 +3,7 @@ plugins {
 }
 
 allprojects {
-    group = "net.crystalixs"
+    group = "wtf.spaghetti"
     version = project.property("version") as String
 
     repositories {

@@ -60,7 +60,7 @@ fun registerBackendServer(name: String, runDirName: String, port: String) {
     }
 
     tasks.register<RunServer>(name) {
-        minecraftVersion("26.2.builld")
+        minecraftVersion("26.2")
         runDirectory = file(runDirName)
         dependsOn(copyTask)
         doFirst {

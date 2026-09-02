@@ -1,0 +1,18 @@
+### Common exclude ###
+.gradle
+.kotlin
+logs
+build/
+out/
+run
+
+.jar
+
+### IntelliJ ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### Do NOT exclude ###
+!gradle/wrapper/gradle-wrapper.jar

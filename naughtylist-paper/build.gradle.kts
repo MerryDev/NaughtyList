@@ -60,14 +60,14 @@ fun registerBackendServer(name: String, runDirName: String, port: String) {
     }
 
     tasks.register<RunServer>(name) {
-        minecraftVersion("26.2")
+        minecraftVersion("26.2.builld")
         runDirectory = file(runDirName)
         dependsOn(copyTask)
         doFirst {
             configurePaperServer(runDirName, port)
         }
         downloadPlugins {
-            url("https://download.luckperms.net/1631/bukkit/loader/LuckPerms-Bukkit-5.5.42.jar")
+            url("https://download.luckperms.net/1668/bukkit/loader/LuckPerms-Bukkit-5.5.81.jar")
         }
     }
 }

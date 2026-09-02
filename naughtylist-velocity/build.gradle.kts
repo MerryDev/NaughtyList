@@ -1,12 +1,14 @@
 plugins {
-    alias(libs.plugins.bukkitConvention)
-    alias(libs.plugins.runPaper)
+    alias(libs.plugins.velocityConvention)
+    alias(libs.plugins.runVelocity)
     alias(libs.plugins.shadow)
 }
 
 dependencies {
-    compileOnly(libs.paper)
-    implementation(project(":common"))
+    compileOnly(libs.velocity)
+    annotationProcessor(libs.velocity)
+
+    implementation(project(":naughtylist-common"))
 }
 
 tasks {
@@ -26,22 +28,22 @@ tasks {
         /*
         val mapping = mapOf("" to "")
 
-        val base = "$group.$artifact.paper.libs"
+        val base = "$group.$artifact.velocity.libs"
         for ((pattern, name) in mapping) relocate(pattern, "$base.$name")
          */
 
-        archiveFileName = "$artifact-${rootProject.version}-paper.jar"
+        archiveFileName = "$artifact-${rootProject.version}-velocity.jar"
     }
 
-    bukkitPluginYaml {
+    velocityPluginJson {
         val mainClass = project.minecraftPluginMainClass()
 
-        main = "$group.$artifact.paper.$mainClass"
+        main = "$group.$artifact.velocity.$mainClass"
         name = rootProject.property("plugin-name") as String
         authors = project.pluginAuthors()
     }
 
-    runServer {
-        minecraftVersion("26.2")
+    runVelocity {
+        velocityVersion("4.1.1-SNAPSHOT")
     }
 }

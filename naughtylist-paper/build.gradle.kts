@@ -1,3 +1,5 @@
+import xyz.jpenilla.runpaper.task.RunServer
+
 plugins {
     alias(libs.plugins.bukkitConvention)
     alias(libs.plugins.runPaper)
@@ -41,7 +43,31 @@ tasks {
         authors = project.pluginAuthors()
     }
 
-    runServer {
+    registerBackendServer("runLobby", "run-lobby", DevEnvironment.LOBBY_PORT)
+    registerBackendServer("runGame", "run-game", DevEnvironment.GAME_PORT)
+}
+
+fun registerBackendServer(name: String, runDirName: String, port: String) {
+    val copyTask = tasks.register<CopyPlugin>("copy${name}Plugin") {
+        runDir.set(runDirName)
+
+        dependsOn("shadowJar")
+        from(tasks.named("shadowJar"))
+        into(layout.dir(provider { file("${runDir.get()}/plugins") }))
+        doFirst {
+            println("Copying plugin into ${runDir.get()}/plugins")
+        }
+    }
+
+    tasks.register<RunServer>(name) {
         minecraftVersion("26.2")
+        runDirectory = file(runDirName)
+        dependsOn(copyTask)
+        doFirst {
+            configurePaperServer(runDirName, port)
+        }
+        downloadPlugins {
+            url("https://download.luckperms.net/1631/bukkit/loader/LuckPerms-Bukkit-5.5.42.jar")
+        }
     }
 }

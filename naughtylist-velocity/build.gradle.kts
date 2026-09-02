@@ -1,3 +1,5 @@
+import xyz.jpenilla.runvelocity.task.RunVelocity
+
 plugins {
     alias(libs.plugins.velocityConvention)
     alias(libs.plugins.runVelocity)
@@ -43,7 +45,28 @@ tasks {
         authors = project.pluginAuthors()
     }
 
-    runVelocity {
-        velocityVersion("4.1.1-SNAPSHOT")
+    register<RunVelocity>("runProxy") {
+        dependsOn("copyVelocityPlugin")
+
+        velocityVersion(libs.versions.velocity.get())
+        doFirst {
+            configureVelocityProxy(
+                mapOf(
+                    "lobby" to DevEnvironment.LOBBY_PORT,
+                    "game" to DevEnvironment.GAME_PORT
+                )
+            )
+        }
+        downloadPlugins {
+            url("https://download.luckperms.net/1624/velocity/LuckPerms-Velocity-5.5.81.jar")
+        }
+    }
+
+    register<Copy>("copyVelocityPlugin") {
+        dependsOn(shadowJar)
+
+        println("Copying plugin into data directory")
+        from(shadowJar)
+        into(layout.dir(provider { file("run/plugins") }))
     }
 }

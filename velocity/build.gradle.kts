@@ -44,6 +44,6 @@ tasks {
     }
 
     runVelocity {
-        velocityVersion("3.5.0-SNAPSHOT")
+        velocityVersion("4.1.1-SNAPSHOT")
     }
 }

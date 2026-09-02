@@ -6,7 +6,7 @@ plugins {
 
 dependencies {
     compileOnly(libs.paper)
-    implementation(project(":common"))
+    implementation(project(":naughtylist-common"))
 }
 
 tasks {
@@ -42,6 +42,6 @@ tasks {
     }
 
     runServer {
-        minecraftVersion("1.21.11")
+        minecraftVersion("26.2")
     }
 }

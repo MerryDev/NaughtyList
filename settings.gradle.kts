@@ -1,5 +1,5 @@
-rootProject.name = "java-multi-module-project-template"
+rootProject.name = "NaughtyList"
 
-include("common")
-include("paper")
-include("velocity")
+include("naughtylist-common")
+include("naughtylist-paper")
+include("naughtylist-velocity")

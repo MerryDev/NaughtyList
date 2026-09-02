@@ -8,7 +8,7 @@ dependencies {
     compileOnly(libs.velocity)
     annotationProcessor(libs.velocity)
 
-    implementation(project(":common"))
+    implementation(project(":naughtylist-common"))
 }
 
 tasks {
@@ -44,6 +44,6 @@ tasks {
     }
 
     runVelocity {
-        velocityVersion("3.5.0-SNAPSHOT")
+        velocityVersion("4.1.1-SNAPSHOT")
     }
 }

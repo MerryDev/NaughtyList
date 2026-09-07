@@ -11,23 +11,23 @@ repositories {
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-flyway")
-    implementation("org.springframework.boot:spring-boot-starter-jooq")
-    implementation("org.springframework.boot:spring-boot-starter-validation")
-    implementation("org.springframework.boot:spring-boot-starter-webmvc")
-    implementation("org.flywaydb:flyway-database-postgresql")
-    implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("tools.jackson.module:jackson-module-kotlin")
+    implementation(libs.spring.flyway)
+    implementation(libs.spring.jooq)
+    implementation(libs.spring.validation)
+    implementation(libs.spring.webmvc)
+    implementation(libs.flyway.postgresql)
+    implementation(libs.kotlin.reflect)
+    implementation(libs.jackson.kotlin)
 
-    runtimeOnly("org.postgresql:postgresql")
-    jooqCodegen("org.postgresql:postgresql")
+    runtimeOnly(libs.postgresql)
+    jooqCodegen(libs.postgresql)
 
-    testImplementation("org.springframework.boot:spring-boot-starter-flyway-test")
-    testImplementation("org.springframework.boot:spring-boot-starter-jooq-test")
-    testImplementation("org.springframework.boot:spring-boot-starter-validation-test")
-    testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation(libs.spring.flyway.test)
+    testImplementation(libs.spring.jooq.test)
+    testImplementation(libs.spring.validation.test)
+    testImplementation(libs.spring.webmvc.test)
+    testImplementation(libs.kotlin.junit5.test)
+    testRuntimeOnly(libs.junit.platform.launcher)
 }
 
 tasks {

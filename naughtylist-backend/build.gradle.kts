@@ -42,7 +42,7 @@ tasks {
             jdbc {
                 driver = "org.postgresql.Driver"
                 url = System.getenv("DB_URL")
-                user = System.getenv("DB_USER")
+                user = System.getenv("DB_USERNAME")
                 password = System.getenv("DB_PASSWORD")
             }
             generator {

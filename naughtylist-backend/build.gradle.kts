@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.spring)
     alias(libs.plugins.spring.boot)
     alias(libs.plugins.spring.dependencyManagement)
+    alias(libs.plugins.jooq)
 }
 
 repositories {
@@ -19,6 +20,7 @@ dependencies {
     implementation("tools.jackson.module:jackson-module-kotlin")
 
     runtimeOnly("org.postgresql:postgresql")
+    jooqCodegen("org.postgresql:postgresql")
 
     testImplementation("org.springframework.boot:spring-boot-starter-flyway-test")
     testImplementation("org.springframework.boot:spring-boot-starter-jooq-test")

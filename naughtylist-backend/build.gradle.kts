@@ -30,8 +30,36 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
-kotlin {
-    compilerOptions {
-        freeCompilerArgs.addAll("-Xjsr305=strict")
+tasks {
+    kotlin {
+        compilerOptions {
+            freeCompilerArgs.addAll("-Xjsr305=strict")
+        }
+    }
+
+    jooq {
+        configuration {
+            jdbc {
+                driver = "org.postgresql.Driver"
+                url = System.getenv("DB_URL")
+                user = System.getenv("DB_USER")
+                password = System.getenv("DB_PASSWORD")
+            }
+            generator {
+                name = "org.jooq.codegen.KotlinGenerator"
+                database {
+                    name = "org.jooq.meta.postgres.PostgresDatabase"
+                    inputSchema = "public"
+                }
+                target {
+                    packageName = "net.neruxvace.naughtylist.backend.jooq"
+                    directory = "build/generated-sources/jooq/main"
+                }
+            }
+        }
+    }
+
+    compileKotlin {
+        dependsOn(jooqCodegen)
     }
 }

@@ -44,12 +44,13 @@ kotlin-spring = { id = "org.jetbrains.kotlin.plugin.spring", version.ref = "kotl
 bukkitConvention = { id = "xyz.jpenilla.resource-factory-bukkit-convention", version.ref = "resource-factory" }
 velocityConvention = { id = "xyz.jpenilla.resource-factory-velocity-convention", version.ref = "resource-factory" }
 runPaper = { id = "xyz.jpenilla.run-paper", version.ref = "run-server" }
+runVelocity = { id = "xyz.jpenilla.run-velocity", version.ref = "run-server" }
 
 # Misc
-runVelocity = { id = "xyz.jpenilla.run-velocity", version.ref = "run-server" }
 shadow = { id = "com.gradleup.shadow", version = "9.3.1" }
+dotenv = { id = "io.github.klahap.dotenv", version = "1.1.3" }
 
 # Spring
 spring-boot = { id = "org.springframework.boot", version = "4.2.0-SNAPSHOT" }
 spring-dependencyManagement = { id = "io.spring.dependency-management", version = "1.1.7" }
-jooq = { id = "org.jooq.jooq-codegen-gradle", version = "3.21.8" }
+jooq-codegen = { id = "org.jooq.jooq-codegen-gradle", version = "3.21.8" }

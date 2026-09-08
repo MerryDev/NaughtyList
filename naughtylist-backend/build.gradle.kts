@@ -1,12 +1,16 @@
+import io.github.klahap.dotenv.DotEnvBuilder
+
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.spring)
     alias(libs.plugins.spring.boot)
     alias(libs.plugins.spring.dependencyManagement)
-    alias(libs.plugins.jooq)
+    alias(libs.plugins.jooq.codegen)
+    alias(libs.plugins.dotenv)
 }
 
 repositories {
+    mavenCentral()
     maven("https://repo.spring.io/snapshot")
 }
 
@@ -38,12 +42,15 @@ tasks {
     }
 
     jooq {
+        val artifact = project.mavenArtifact()
+        val envVars = DotEnvBuilder.dotEnv { addFile(project.file("$rootDir/secrets/database-credentials.env")) }
+
         configuration {
             jdbc {
                 driver = "org.postgresql.Driver"
-                url = System.getenv("DB_URL")
-                user = System.getenv("DB_USERNAME")
-                password = System.getenv("DB_PASSWORD")
+                url = envVars["DB_URL"]
+                user = envVars["DB_USERNAME"]
+                password = envVars["DB_PASSWORD"]
             }
             generator {
                 name = "org.jooq.codegen.KotlinGenerator"
@@ -52,8 +59,8 @@ tasks {
                     inputSchema = "public"
                 }
                 target {
-                    packageName = "net.neruxvace.naughtylist.backend.jooq"
-                    directory = "build/generated-sources/jooq/main"
+                    packageName = "$group.$artifact.backend.jooq"
+                    directory = "build/generated-src/jooq/main"
                 }
             }
         }

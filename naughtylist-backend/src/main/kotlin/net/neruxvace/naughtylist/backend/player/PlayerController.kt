@@ -3,6 +3,7 @@ package net.neruxvace.naughtylist.backend.player
 import jakarta.validation.Valid
 import net.neruxvace.naughtylist.backend.auth.CurrentClient
 import net.neruxvace.naughtylist.backend.player.request.SyncPlayerRequest
+import net.neruxvace.naughtylist.backend.player.request.UpdateDiscordIdRequest
 import net.neruxvace.naughtylist.backend.player.response.PlayerNameResponse
 import net.neruxvace.naughtylist.backend.player.response.PlayerResponse
 import org.springframework.http.ResponseEntity
@@ -20,6 +21,12 @@ class PlayerController(
     fun syncPlayer(@PathVariable uuid: UUID, @Valid @RequestBody request: SyncPlayerRequest): PlayerResponse {
         client.requireServer()
         return service.sync(uuid, request.name)
+    }
+
+    @PutMapping("/{uuid}/discord")
+    fun updateDiscordId(@PathVariable uuid: UUID, @Valid @RequestBody request: UpdateDiscordIdRequest): ResponseEntity<PlayerResponse> {
+        val player = service.updateDiscordId(uuid, request.discordId) ?: return ResponseEntity.notFound().build()
+        return ResponseEntity.ok(player)
     }
 
     @GetMapping("/{uuid}")

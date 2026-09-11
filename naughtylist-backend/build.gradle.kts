@@ -56,6 +56,10 @@ tasks {
             }
             generator {
                 name = "org.jooq.codegen.KotlinGenerator"
+                generate {
+                    isKotlinNotNullRecordAttributes = true
+                    isKotlinDefaultedNullableRecordAttributes = false
+                }
                 database {
                     name = "org.jooq.meta.postgres.PostgresDatabase"
                     inputSchema = "public"

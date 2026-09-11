@@ -42,7 +42,7 @@ class ReasonService(private val context: DSLContext) {
     }
 
     fun create(request: CreateReasonRequest): ReasonResponse {
-        if (exists(request.key)) throw ResponseStatusException(HttpStatus.CONFLICT, "Reason with key ${request.key} already exists")
+        if (keyExists(request.key)) throw ResponseStatusException(HttpStatus.CONFLICT, "Reason with key ${request.key} already exists")
 
         val record = context
             .insertInto(REASON)
@@ -61,7 +61,7 @@ class ReasonService(private val context: DSLContext) {
         )
     }
 
-    private fun exists(key: String): Boolean {
+    private fun keyExists(key: String): Boolean {
         return context.fetchExists(
             context.selectOne()
                 .from(REASON)

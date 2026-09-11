@@ -7,6 +7,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoder
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters
 import org.springframework.stereotype.Service
 import java.time.Instant
+import java.util.*
 
 @Service
 class JwtTokenService(
@@ -23,6 +24,26 @@ class JwtTokenService(
             .issuedAt(now)
             .expiresAt(now.plus(properties.ttl))
             .claim("client_type", "SERVER")
+            .build()
+
+        val header = JwsHeader
+            .with(MacAlgorithm.HS256)
+            .build()
+
+        return encoder.encode(JwtEncoderParameters.from(header, claims)).tokenValue
+    }
+
+    fun createActorToken(playerUuid: UUID, clientId: String, scopes: Set<String>): String {
+        val now = Instant.now()
+        val claims = JwtClaimsSet.builder()
+            .issuer(properties.issuer)
+            .subject(playerUuid.toString())
+            .audience(listOf(properties.audience))
+            .issuedAt(now)
+            .expiresAt(now.plus(properties.ttl))
+            .claim("client_type", "ACTOR")
+            .claim("client_id", clientId)
+            .claim("scope", scopes.sorted().joinToString(" "))
             .build()
 
         val header = JwsHeader

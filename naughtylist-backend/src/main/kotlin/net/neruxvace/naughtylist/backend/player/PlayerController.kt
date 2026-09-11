@@ -3,6 +3,7 @@ package net.neruxvace.naughtylist.backend.player
 import jakarta.validation.Valid
 import net.neruxvace.naughtylist.backend.auth.CurrentClient
 import net.neruxvace.naughtylist.backend.player.request.SyncPlayerRequest
+import net.neruxvace.naughtylist.backend.player.response.PlayerNameResponse
 import net.neruxvace.naughtylist.backend.player.response.PlayerResponse
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -31,5 +32,11 @@ class PlayerController(
     fun getPlayerByName(@RequestParam name: String): ResponseEntity<PlayerResponse> {
         val player = service.findByName(name) ?: return ResponseEntity.notFound().build()
         return ResponseEntity.ok(player)
+    }
+
+    @GetMapping("/{uuid}/names")
+    fun getNameHistory(@PathVariable uuid: UUID): ResponseEntity<List<PlayerNameResponse>> {
+        val history = service.getNameHistory(uuid) ?: return ResponseEntity.notFound().build()
+        return ResponseEntity.ok(history)
     }
 }

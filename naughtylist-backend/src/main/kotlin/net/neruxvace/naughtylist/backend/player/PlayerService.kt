@@ -97,6 +97,16 @@ class PlayerService(private val context: DSLContext) {
         return requireNotNull(findByUuid(uuid))
     }
 
+    fun updateDiscordId(uuid: UUID, discordId: String?): PlayerResponse? {
+        val updated = context
+            .update(PLAYER)
+            .set(PLAYER.DISCORD_ID, discordId)
+            .where(PLAYER.UUID.eq(uuid))
+            .execute()
+
+        return if (updated == 0) null else findByUuid(uuid)
+    }
+
     private fun insertName(uuid: UUID, name: String, timestamp: LocalDateTime) {
         context.insertInto(PLAYER_NAME_HISTORY)
             .set(PLAYER_NAME_HISTORY.PLAYER_UUID, uuid)

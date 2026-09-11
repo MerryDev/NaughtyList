@@ -37,3 +37,28 @@ Authorization: Bearer {{$auth.token("server")}}
 
 GET {{baseUrl}}/reports/999999
 Authorization: Bearer {{$auth.token("server")}}
+
+### Get open reports
+
+GET {{baseUrl}}/reports?status=OPEN
+Authorization: Bearer {{$auth.token("server")}}
+
+### Get reports for target
+
+GET {{baseUrl}}/reports?targetUuid={{testTargetUuid}}
+Authorization: Bearer {{$auth.token("server")}}
+
+### Get reports from server
+
+GET {{baseUrl}}/reports?serverName={{apiClientId}}
+Authorization: Bearer {{$auth.token("server")}}
+
+### Get open reports for target
+
+GET {{baseUrl}}/reports?status=OPEN&targetUuid={{testTargetUuid}}
+Authorization: Bearer {{$auth.token("server")}}
+
+### Get open reports for target on server
+
+GET {{baseUrl}}/reports?status=OPEN&targetUuid={{testTargetUuid}}&serverName={{apiClientId}}
+Authorization: Bearer {{$auth.token("server")}}

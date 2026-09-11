@@ -1,6 +1,7 @@
 package net.neruxvace.naughtylist.backend.auth
 
 import org.jooq.DSLContext
+import org.slf4j.LoggerFactory
 import org.springframework.boot.CommandLineRunner
 import org.springframework.core.env.Environment
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -13,6 +14,8 @@ class ApiClientBootstrap(
     private val encoder: PasswordEncoder,
     private val environment: Environment
 ) : CommandLineRunner {
+
+    private val logger = LoggerFactory.getLogger(ApiClientBootstrap::class.java)
 
     override fun run(vararg args: String) {
         val clientId = environment.getProperty("BOOTSTRAP_CLIENT_ID") ?: return
@@ -29,7 +32,7 @@ class ApiClientBootstrap(
             .set(API_CLIENT.ENABLED, true)
             .execute()
 
-        println("Bootstrap API client '$clientId' created")
+        logger.info("Bootstrap API user '{}' was successfully created.", clientId)
     }
 
 }

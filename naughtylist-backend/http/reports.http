@@ -1,0 +1,39 @@
+### Create report
+
+POST {{baseUrl}}/reports
+Authorization: Bearer {{$auth.token("server")}}
+Content-Type: application/json
+
+{
+  "reporterUuid": "{{testPlayerUuid}}",
+  "targetUuid": "{{testTargetUuid}}",
+  "reasonId": 1,
+  "replayId": "replay-abc-123"
+}
+
+### Create report without replay
+
+POST {{baseUrl}}/reports
+Authorization: Bearer {{$auth.token("server")}}
+Content-Type: application/json
+
+{
+  "reporterUuid": "{{testPlayerUuid}}",
+  "targetUuid": "{{testTargetUuid}}",
+  "reasonId": 1
+}
+
+### Get all reports
+
+GET {{baseUrl}}/reports
+Authorization: Bearer {{$auth.token("server")}}
+
+### Get report by ID
+
+GET {{baseUrl}}/reports/1
+Authorization: Bearer {{$auth.token("server")}}
+
+### Get unknown report
+
+GET {{baseUrl}}/reports/999999
+Authorization: Bearer {{$auth.token("server")}}

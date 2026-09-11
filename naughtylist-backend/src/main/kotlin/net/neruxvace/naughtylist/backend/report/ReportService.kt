@@ -8,10 +8,29 @@ import org.jooq.DSLContext
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
-import java.util.UUID
+import java.util.*
 
 @Service
 class ReportService(private val context: DSLContext) {
+
+    fun findById(id: Long): ReportResponse? {
+        val record = context
+            .selectFrom(REPORT)
+            .where(REPORT.ID.eq(id))
+            .fetchOne() ?: return null
+
+        return ReportResponse(
+            id = requireNotNull(record.id),
+            replayId = record.replayId,
+            serverName = record.serverName,
+            reporterUuid = record.reporterUuid,
+            targetUuid = record.targetUuid,
+            reasonId = record.reasonId,
+            status = requireNotNull(record.status),
+            caseId = record.caseId,
+            createdAt = requireNotNull(record.createdAt)
+        )
+    }
 
     fun create(request: CreateReportRequest, serverName: String): ReportResponse {
         requirePlayer(request.reporterUuid)
@@ -37,7 +56,7 @@ class ReportService(private val context: DSLContext) {
             reasonId = record.reasonId,
             status = requireNotNull(record.status),
             caseId = record.caseId,
-            createdAt = requireNotNull(record.createdAt),
+            createdAt = requireNotNull(record.createdAt)
         )
     }
 

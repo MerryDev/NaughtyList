@@ -4,11 +4,8 @@ import jakarta.validation.Valid
 import net.neruxvace.naughtylist.backend.auth.CurrentClient
 import net.neruxvace.naughtylist.backend.report.request.CreateReportRequest
 import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.ResponseStatus
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/v1/reports")
@@ -16,6 +13,12 @@ class ReportController(
     private val service: ReportService,
     private val currentClient: CurrentClient
 ) {
+
+    @GetMapping("/{id}")
+    fun getReport(@PathVariable id: Long): ResponseEntity<ReportResponse> {
+        val report = service.findById(id) ?: return ResponseEntity.notFound().build()
+        return ResponseEntity.ok(report)
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

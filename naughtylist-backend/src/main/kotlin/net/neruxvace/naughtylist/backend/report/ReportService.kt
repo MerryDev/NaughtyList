@@ -13,6 +13,26 @@ import java.util.*
 @Service
 class ReportService(private val context: DSLContext) {
 
+    fun findAll(): List<ReportResponse> {
+        return context
+            .selectFrom(REPORT)
+            .orderBy(REPORT.CREATED_AT.desc())
+            .fetch()
+            .map { record ->
+                ReportResponse(
+                    id = requireNotNull(record.id),
+                    replayId = record.replayId,
+                    serverName = record.serverName,
+                    reporterUuid = record.reporterUuid,
+                    targetUuid = record.targetUuid,
+                    reasonId = record.reasonId,
+                    status = requireNotNull(record.status),
+                    caseId = record.caseId,
+                    createdAt = requireNotNull(record.createdAt)
+                )
+            }
+    }
+
     fun findById(id: Long): ReportResponse? {
         val record = context
             .selectFrom(REPORT)

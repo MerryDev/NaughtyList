@@ -14,6 +14,11 @@ class ReportController(
     private val currentClient: CurrentClient
 ) {
 
+    @GetMapping
+    fun getReports(): List<ReportResponse> {
+        return service.findAll()
+    }
+
     @GetMapping("/{id}")
     fun getReport(@PathVariable id: Long): ResponseEntity<ReportResponse> {
         val report = service.findById(id) ?: return ResponseEntity.notFound().build()

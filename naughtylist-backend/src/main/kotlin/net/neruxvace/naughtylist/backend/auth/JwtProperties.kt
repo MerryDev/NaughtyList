@@ -3,7 +3,7 @@ package net.neruxvace.naughtylist.backend.auth
 import org.springframework.boot.context.properties.ConfigurationProperties
 import java.time.Duration
 
-@ConfigurationProperties("nughtylist.security.jwt")
+@ConfigurationProperties("naughtylist.security.jwt")
 data class JwtProperties(
     var secret: String = "",
     var issuer: String = "",

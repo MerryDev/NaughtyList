@@ -3,6 +3,7 @@ package net.neruxvace.naughtylist.backend.player
 import jakarta.validation.Valid
 import net.neruxvace.naughtylist.backend.auth.CurrentClient
 import net.neruxvace.naughtylist.backend.player.request.SyncPlayerRequest
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.util.*
 
@@ -19,4 +20,9 @@ class PlayerController(
         return service.sync(uuid, request.name)
     }
 
+    @GetMapping("/{uuid}")
+    fun getPlayer(@PathVariable uuid: UUID): ResponseEntity<PlayerResponse> {
+        val player = service.findByUuid(uuid) ?: return ResponseEntity.notFound().build()
+        return ResponseEntity.ok(player)
+    }
 }

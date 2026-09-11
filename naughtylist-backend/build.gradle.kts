@@ -19,6 +19,8 @@ dependencies {
     implementation(libs.spring.jooq)
     implementation(libs.spring.validation)
     implementation(libs.spring.webmvc)
+    implementation(libs.spring.security)
+    implementation(libs.spring.oauth2)
     implementation(libs.flyway.postgresql)
     implementation(libs.kotlin.reflect)
     implementation(libs.jackson.kotlin)
@@ -43,7 +45,7 @@ tasks {
 
     jooq {
         val artifact = project.mavenArtifact()
-        val envVars = DotEnvBuilder.dotEnv { addFile(project.file("$rootDir/secrets/database-credentials.env")) }
+        val envVars = DotEnvBuilder.dotEnv { addFile(project.file("$rootDir/secrets/credentials.env")) }
 
         configuration {
             jdbc {
@@ -54,6 +56,10 @@ tasks {
             }
             generator {
                 name = "org.jooq.codegen.KotlinGenerator"
+                generate {
+                    isKotlinNotNullRecordAttributes = true
+                    isKotlinDefaultedNullableRecordAttributes = false
+                }
                 database {
                     name = "org.jooq.meta.postgres.PostgresDatabase"
                     inputSchema = "public"

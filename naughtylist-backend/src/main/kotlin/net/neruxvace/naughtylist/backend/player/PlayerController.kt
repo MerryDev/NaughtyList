@@ -3,6 +3,7 @@ package net.neruxvace.naughtylist.backend.player
 import jakarta.validation.Valid
 import net.neruxvace.naughtylist.backend.auth.CurrentClient
 import net.neruxvace.naughtylist.backend.player.request.SyncPlayerRequest
+import net.neruxvace.naughtylist.backend.player.response.PlayerResponse
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.util.*

@@ -1,4 +1,4 @@
-package net.neruxvace.naughtylist.backend.player
+package net.neruxvace.naughtylist.backend.player.response
 
 import java.time.LocalDateTime
 import java.util.UUID

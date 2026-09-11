@@ -1,5 +1,6 @@
 package net.neruxvace.naughtylist.backend.player
 
+import net.neruxvace.naughtylist.backend.player.response.PlayerResponse
 import org.jooq.DSLContext
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional

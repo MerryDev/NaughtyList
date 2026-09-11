@@ -1,0 +1,20 @@
+### Show current API client
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{$auth.token("server")}}
+
+### Actor token with reason:write permission
+
+POST {{baseUrl}}/auth/actor-token
+Authorization: Bearer {{$auth.token("server")}}
+Content-Type: application/json
+
+{
+  "playerUuid": "{{testPlayerUuid}}",
+  "permissions": [
+    "naughtylist.reason.write"
+  ]
+}
+
+> {%
+    client.global.set("actorToken", response.body.accessToken);
+%}

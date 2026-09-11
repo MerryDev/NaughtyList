@@ -1,5 +1,6 @@
 package net.neruxvace.naughtylist.backend.player
 
+import net.neruxvace.naughtylist.backend.player.response.PlayerNameResponse
 import net.neruxvace.naughtylist.backend.player.response.PlayerResponse
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
@@ -44,6 +45,23 @@ class PlayerService(private val context: DSLContext) {
             .fetchOne(PLAYER_NAME_HISTORY.PLAYER_UUID) ?: return null
 
         return findByUuid(uuid)
+    }
+
+    fun getNameHistory(uuid: UUID): List<PlayerNameResponse>? {
+        if (!context.fetchExists(context.selectOne().from(PLAYER).where(PLAYER.UUID.eq(uuid)))) return null
+
+        return context
+            .selectFrom(PLAYER_NAME_HISTORY)
+            .where(PLAYER_NAME_HISTORY.PLAYER_UUID.eq(uuid))
+            .orderBy(PLAYER_NAME_HISTORY.VALID_FROM.desc())
+            .fetch()
+            .map {
+                PlayerNameResponse(
+                    name = it.name,
+                    validFrom = requireNotNull(it.validFrom),
+                    validUntil = it.validUntil
+                )
+            }
     }
 
     @Transactional

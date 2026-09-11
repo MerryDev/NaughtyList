@@ -6,6 +6,7 @@ build/
 out/
 run*
 secrets
+naughtylist-backend/http/http-client.private.env.json
 
 .jar
 

@@ -1,15 +1,15 @@
 package net.neruxvace.naughtylist.backend.player
 
+import net.neruxvace.naughtylist.backend.jooq.tables.references.PLAYER
+import net.neruxvace.naughtylist.backend.jooq.tables.references.PLAYER_NAME_HISTORY
 import net.neruxvace.naughtylist.backend.player.response.PlayerNameResponse
 import net.neruxvace.naughtylist.backend.player.response.PlayerResponse
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import wtf.spaghetti.naughtylist.backend.jooq.tables.references.PLAYER
-import wtf.spaghetti.naughtylist.backend.jooq.tables.references.PLAYER_NAME_HISTORY
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 @Service
 class PlayerService(private val context: DSLContext) {

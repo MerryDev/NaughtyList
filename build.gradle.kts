@@ -3,7 +3,7 @@ plugins {
 }
 
 allprojects {
-    group = "wtf.spaghetti"
+    group = "net.neruxvace"
     version = project.property("version") as String
 
     repositories {

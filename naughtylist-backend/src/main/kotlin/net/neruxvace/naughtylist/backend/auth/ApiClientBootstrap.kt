@@ -6,7 +6,7 @@ import org.springframework.boot.CommandLineRunner
 import org.springframework.core.env.Environment
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
-import wtf.spaghetti.naughtylist.backend.jooq.tables.references.API_CLIENT
+import net.neruxvace.naughtylist.backend.jooq.tables.references.API_CLIENT
 
 @Component
 class ApiClientBootstrap(

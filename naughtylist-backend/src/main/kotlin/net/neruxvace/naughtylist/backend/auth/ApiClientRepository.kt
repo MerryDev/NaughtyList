@@ -2,7 +2,7 @@ package net.neruxvace.naughtylist.backend.auth
 
 import org.jooq.DSLContext
 import org.springframework.stereotype.Repository
-import wtf.spaghetti.naughtylist.backend.jooq.tables.references.API_CLIENT
+import net.neruxvace.naughtylist.backend.jooq.tables.references.API_CLIENT
 
 @Repository
 class ApiClientRepository(private val context: DSLContext) {

@@ -2,6 +2,7 @@ package net.neruxvace.naughtylist.backend.player
 
 import net.neruxvace.naughtylist.backend.player.response.PlayerResponse
 import org.jooq.DSLContext
+import org.jooq.impl.DSL
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import wtf.spaghetti.naughtylist.backend.jooq.tables.references.PLAYER
@@ -32,6 +33,17 @@ class PlayerService(private val context: DSLContext) {
             firstJoinedAt = requireNotNull(player.firstJoinedAt),
             lastSeenAt = player.lastSeenAt
         )
+    }
+
+    fun findByName(name: String): PlayerResponse? {
+        val uuid = context
+            .select(PLAYER_NAME_HISTORY.PLAYER_UUID)
+            .from(PLAYER_NAME_HISTORY)
+            .where(DSL.lower(PLAYER_NAME_HISTORY.NAME).eq(name.lowercase()))
+            .and(PLAYER_NAME_HISTORY.VALID_UNTIL.isNull)
+            .fetchOne(PLAYER_NAME_HISTORY.PLAYER_UUID) ?: return null
+
+        return findByUuid(uuid)
     }
 
     @Transactional

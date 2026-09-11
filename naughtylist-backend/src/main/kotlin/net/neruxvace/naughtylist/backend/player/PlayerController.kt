@@ -26,4 +26,10 @@ class PlayerController(
         val player = service.findByUuid(uuid) ?: return ResponseEntity.notFound().build()
         return ResponseEntity.ok(player)
     }
+
+    @GetMapping
+    fun getPlayerByName(@RequestParam name: String): ResponseEntity<PlayerResponse> {
+        val player = service.findByName(name) ?: return ResponseEntity.notFound().build()
+        return ResponseEntity.ok(player)
+    }
 }

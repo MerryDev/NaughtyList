@@ -1,10 +1,13 @@
 package net.neruxvace.naughtylist.backend.report
 
+import net.neruxvace.naughtylist.backend.jooq.enums.ReportStatus
 import net.neruxvace.naughtylist.backend.jooq.tables.references.PLAYER
 import net.neruxvace.naughtylist.backend.jooq.tables.references.REASON
 import net.neruxvace.naughtylist.backend.jooq.tables.references.REPORT
 import net.neruxvace.naughtylist.backend.report.request.CreateReportRequest
+import org.jooq.Condition
 import org.jooq.DSLContext
+import org.jooq.impl.DSL
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
@@ -13,10 +16,16 @@ import java.util.*
 @Service
 class ReportService(private val context: DSLContext) {
 
-    fun findAll(): List<ReportResponse> {
+    fun findAll(status: ReportStatus?, targetUuid: UUID?, serverName: String?): List<ReportResponse> {
+        var condition: Condition = DSL.trueCondition()
+
+        status?.let { condition = condition.and(REPORT.STATUS.eq(it)) }
+        targetUuid?.let { condition = condition.and(REPORT.TARGET_UUID.eq(it)) }
+        serverName?.let { condition = condition.and(REPORT.SERVER_NAME.eq(it)) }
+
         return context
             .selectFrom(REPORT)
-            .orderBy(REPORT.CREATED_AT.desc())
+            .where(condition)
             .fetch()
             .map { record ->
                 ReportResponse(

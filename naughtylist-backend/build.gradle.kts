@@ -19,6 +19,8 @@ dependencies {
     implementation(libs.spring.jooq)
     implementation(libs.spring.validation)
     implementation(libs.spring.webmvc)
+    implementation(libs.spring.security)
+    implementation(libs.spring.oauth2)
     implementation(libs.flyway.postgresql)
     implementation(libs.kotlin.reflect)
     implementation(libs.jackson.kotlin)

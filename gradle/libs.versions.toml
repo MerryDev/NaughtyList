@@ -15,6 +15,8 @@ spring-flyway = { module = "org.springframework.boot:spring-boot-starter-flyway"
 spring-jooq = { module = "org.springframework.boot:spring-boot-starter-jooq" }
 spring-validation = { module = "org.springframework.boot:spring-boot-starter-validation" }
 spring-webmvc = { module = "org.springframework.boot:spring-boot-starter-webmvc" }
+spring-security = { module = "org.springframework.boot:spring-boot-starter-security" }
+spring-oauth2 = { module = "org.springframework.boot:spring-boot-starter-oauth2-resource-server" }
 
 # Database
 postgresql = { module = "org.postgresql:postgresql" }

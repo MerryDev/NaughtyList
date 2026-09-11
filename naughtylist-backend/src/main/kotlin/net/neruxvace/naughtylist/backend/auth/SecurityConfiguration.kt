@@ -38,14 +38,14 @@ class SecurityConfiguration {
     }
 
     @Bean
-    fun jwtDecoder(key: SecretKey, properties: JwtProperties, secretKey: SecretKey): JwtDecoder {
+    fun jwtDecoder(key: SecretKey, properties: JwtProperties): JwtDecoder {
         val decoder = NimbusJwtDecoder
             .withSecretKey(key)
             .macAlgorithm(MacAlgorithm.HS256)
             .build()
 
         val issuerValidator = JwtValidators.createDefaultWithIssuer(properties.issuer)
-        val audienceValidator = JwtClaimValidator<List<String>>("audience") { audience -> properties.audience in audience }
+        val audienceValidator = JwtAudienceValidator(properties.audience)
 
         decoder.setJwtValidator(DelegatingOAuth2TokenValidator(issuerValidator, audienceValidator))
         return decoder

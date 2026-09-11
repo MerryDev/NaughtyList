@@ -1,0 +1,59 @@
+### Sync test player
+
+PUT {{baseUrl}}/players/{{testPlayerUuid}}
+Authorization: Bearer {{$auth.token("server")}}
+Content-Type: application/json
+
+{
+  "name": "Test123"
+}
+
+### Sync target player
+
+PUT {{baseUrl}}/players/{{testTargetUuid}}
+Authorization: Bearer {{$auth.token("server")}}
+Content-Type: application/json
+
+{
+  "name": "Target123"
+}
+
+### Get player by UUID
+
+GET {{baseUrl}}/players/{{testPlayerUuid}}
+Authorization: Bearer {{$auth.token("server")}}
+
+### Get target player by UUID
+
+GET {{baseUrl}}/players/{{testTargetUuid}}
+Authorization: Bearer {{$auth.token("server")}}
+
+### Get player by current name
+
+GET {{baseUrl}}/players?name=Test123
+Authorization: Bearer {{$auth.token("server")}}
+
+### Get player name history
+
+GET {{baseUrl}}/players/{{testPlayerUuid}}/names
+Authorization: Bearer {{$auth.token("server")}}
+
+### Set Discord ID
+
+PUT {{baseUrl}}/players/{{testPlayerUuid}}/discord
+Authorization: Bearer {{$auth.token("server")}}
+Content-Type: application/json
+
+{
+  "discordId": "123456789012345678"
+}
+
+### Remove Discord ID
+
+PUT {{baseUrl}}/players/{{testPlayerUuid}}/discord
+Authorization: Bearer {{$auth.token("server")}}
+Content-Type: application/json
+
+{
+  "discordId": null
+}

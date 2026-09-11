@@ -1,0 +1,53 @@
+### Get all reasons
+
+GET {{baseUrl}}/reasons
+Authorization: Bearer {{$auth.token("server")}}
+
+### Get reason by ID
+
+GET {{baseUrl}}/reasons/1
+Authorization: Bearer {{$auth.token("server")}}
+
+### Create reason
+
+POST {{baseUrl}}/reasons
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "key": "CHEATING",
+  "name": "Cheating",
+  "description": "Nutzung unerlaubter Clientmodifikationen"
+}
+
+### Update reason
+
+PATCH {{baseUrl}}/reasons/1
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "name": "Cheating",
+  "description": "Nutzung unerlaubter Clientmodifikationen",
+  "enabled": true
+}
+
+### Disable reason
+
+PATCH {{baseUrl}}/reasons/1
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "enabled": false
+}
+
+### Enable reason
+
+PATCH {{baseUrl}}/reasons/1
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "enabled": true
+}

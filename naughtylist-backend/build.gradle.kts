@@ -45,7 +45,7 @@ tasks {
 
     jooq {
         val artifact = project.mavenArtifact()
-        val envVars = DotEnvBuilder.dotEnv { addFile(project.file("$rootDir/secrets/database-credentials.env")) }
+        val envVars = DotEnvBuilder.dotEnv { addFile(project.file("$rootDir/secrets/credentials.env")) }
 
         configuration {
             jdbc {

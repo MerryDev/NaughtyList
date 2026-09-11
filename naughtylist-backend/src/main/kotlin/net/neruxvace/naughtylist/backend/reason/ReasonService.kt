@@ -2,6 +2,7 @@ package net.neruxvace.naughtylist.backend.reason
 
 import net.neruxvace.naughtylist.backend.jooq.tables.references.REASON
 import net.neruxvace.naughtylist.backend.reason.request.CreateReasonRequest
+import net.neruxvace.naughtylist.backend.reason.request.UpdateReasonRequest
 import org.jooq.DSLContext
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -61,11 +62,34 @@ class ReasonService(private val context: DSLContext) {
         )
     }
 
+    fun update(id: Long, request: UpdateReasonRequest): ReasonResponse? {
+        if (!idExists(id)) return null
+        if (request.isEmpty()) return findById(id)
+
+        val update = context.updateQuery(REASON)
+        request.name?.let { update.addValue(REASON.NAME, it) }
+        request.description?.let { update.addValue(REASON.DESCRIPTION, it) }
+        request.enabled?.let { update.addValue(REASON.ENABLED, it) }
+
+        update.addConditions(REASON.ID.eq(id))
+        update.execute()
+
+        return findById(id)
+    }
+
     private fun keyExists(key: String): Boolean {
         return context.fetchExists(
             context.selectOne()
                 .from(REASON)
                 .where(REASON.KEY.eq(key))
+        )
+    }
+
+    private fun idExists(id: Long): Boolean {
+        return context.fetchExists(
+            context.selectOne()
+                .from(REASON)
+                .where(REASON.ID.eq(id))
         )
     }
 

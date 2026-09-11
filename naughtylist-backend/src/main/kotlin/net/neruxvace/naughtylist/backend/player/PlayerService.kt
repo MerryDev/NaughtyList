@@ -65,11 +65,7 @@ class PlayerService(private val context: DSLContext) {
             .fetchOne()
 
         if (currentName == null) { // Save name on first join
-            context.insertInto(PLAYER_NAME_HISTORY)
-                .set(PLAYER_NAME_HISTORY.PLAYER_UUID, uuid)
-                .set(PLAYER_NAME_HISTORY.NAME, name)
-                .set(PLAYER_NAME_HISTORY.VALID_FROM, now)
-                .execute()
+            insertName(uuid, name, now)
 
         } else if (currentName.name != name) { // Name has changed since last join
             context.update(PLAYER_NAME_HISTORY)
@@ -77,13 +73,17 @@ class PlayerService(private val context: DSLContext) {
                 .where(PLAYER_NAME_HISTORY.ID.eq(currentName.id))
                 .execute()
 
-            context.insertInto(PLAYER_NAME_HISTORY)
-                .set(PLAYER_NAME_HISTORY.PLAYER_UUID, uuid)
-                .set(PLAYER_NAME_HISTORY.NAME, name)
-                .set(PLAYER_NAME_HISTORY.VALID_FROM, now)
-                .execute()
+            insertName(uuid, name, now)
         }
 
         return requireNotNull(findByUuid(uuid))
+    }
+
+    private fun insertName(uuid: UUID, name: String, timestamp: LocalDateTime) {
+        context.insertInto(PLAYER_NAME_HISTORY)
+            .set(PLAYER_NAME_HISTORY.PLAYER_UUID, uuid)
+            .set(PLAYER_NAME_HISTORY.NAME, name)
+            .set(PLAYER_NAME_HISTORY.VALID_FROM, timestamp)
+            .execute()
     }
 }

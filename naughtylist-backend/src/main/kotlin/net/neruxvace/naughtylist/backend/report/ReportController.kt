@@ -4,6 +4,7 @@ import jakarta.validation.Valid
 import net.neruxvace.naughtylist.backend.auth.CurrentClient
 import net.neruxvace.naughtylist.backend.jooq.enums.ReportStatus
 import net.neruxvace.naughtylist.backend.report.request.CreateReportRequest
+import net.neruxvace.naughtylist.backend.report.request.UpdateReportCaseRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
@@ -44,6 +45,15 @@ class ReportController(
     @PreAuthorize("hasAuthority('SCOPE_report:review')")
     fun closeReport(@PathVariable id: Long): ReportResponse? {
         return service.close(id) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Report not found")
+    }
+
+    @PutMapping("/{id}/case")
+    @PreAuthorize("hasAuthority('SCOPE_report:review')")
+    fun updateReportCase(
+        @PathVariable id: Long,
+        @Valid @RequestBody request: UpdateReportCaseRequest
+    ): ReportResponse {
+        return service.updateCase(id, request) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Report not found")
     }
 
 }

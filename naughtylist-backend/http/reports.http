@@ -67,3 +67,23 @@ Authorization: Bearer {{$auth.token("server")}}
 
 POST {{baseUrl}}/reports/1/close
 Authorization: Bearer {{actorToken}}
+
+### Assign report to moderation case
+
+PUT {{baseUrl}}/reports/1/case
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "caseId": 1
+}
+
+### Remove report from moderation case
+
+PUT {{baseUrl}}/reports/1/case
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "caseId": null
+}

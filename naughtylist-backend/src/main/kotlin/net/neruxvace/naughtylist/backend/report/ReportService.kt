@@ -1,11 +1,14 @@
 package net.neruxvace.naughtylist.backend.report
 
+import net.neruxvace.naughtylist.backend.jooq.enums.CaseStatus
 import net.neruxvace.naughtylist.backend.jooq.enums.ReportStatus
 import net.neruxvace.naughtylist.backend.jooq.tables.records.ReportRecord
+import net.neruxvace.naughtylist.backend.jooq.tables.references.MODERATION_CASE
 import net.neruxvace.naughtylist.backend.jooq.tables.references.PLAYER
 import net.neruxvace.naughtylist.backend.jooq.tables.references.REASON
 import net.neruxvace.naughtylist.backend.jooq.tables.references.REPORT
 import net.neruxvace.naughtylist.backend.report.request.CreateReportRequest
+import net.neruxvace.naughtylist.backend.report.request.UpdateReportCaseRequest
 import org.jooq.Condition
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
@@ -66,6 +69,37 @@ class ReportService(private val context: DSLContext) {
             .where(REPORT.ID.eq(id))
             .returning()
             .fetchOne() ?: error("Failed to close report")
+
+        return map(updated)
+    }
+
+    fun updateCase(id: Long, request: UpdateReportCaseRequest): ReportResponse? {
+        val report = findReport(id) ?: return null
+
+        if (report.status != ReportStatus.OPEN) {
+            throw ResponseStatusException(HttpStatus.CONFLICT, "Report is not open")
+        }
+
+        request.caseId?.let { caseId ->
+            val case = context
+                .selectFrom(MODERATION_CASE)
+                .where(MODERATION_CASE.ID.eq(caseId))
+                .fetchOne() ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Case not found")
+
+            if (case.status != CaseStatus.OPEN) {
+                throw ResponseStatusException(HttpStatus.CONFLICT, "Case is not open")
+            }
+            if (case.targetUuid != report.targetUuid) {
+                throw ResponseStatusException(HttpStatus.CONFLICT, "Moderation case target does not match report target")
+            }
+        }
+
+        val updated = context
+            .update(REPORT)
+            .set(REPORT.CASE_ID, request.caseId)
+            .where(REPORT.ID.eq(id))
+            .returning()
+            .fetchOne() ?: error("Failed to update report case")
 
         return map(updated)
     }

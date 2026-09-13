@@ -92,3 +92,23 @@ Authorization: Bearer {{actorToken}}
 
 POST {{baseUrl}}/cases/2/dismiss
 Authorization: Bearer {{actorToken}}
+
+### Add note to moderation case
+
+POST {{baseUrl}}/cases/3/notes
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "content": "Replay reviewed. Suspicious behaviour requires further investigation."
+}
+
+### Add empty note
+
+POST {{baseUrl}}/cases/3/notes
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "content": "   "
+}

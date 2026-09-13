@@ -1,0 +1,50 @@
+### Get unknown moderation case
+
+GET {{baseUrl}}/cases/{{missingId}}
+Authorization: Bearer {{$auth.token("server")}}
+
+###
+
+### Get notes for unknown moderation case
+
+GET {{baseUrl}}/cases/{{missingId}}/notes
+Authorization: Bearer {{$auth.token("server")}}
+
+###
+
+### Get evidence for unknown moderation case
+
+GET {{baseUrl}}/cases/{{missingId}}/evidence
+Authorization: Bearer {{$auth.token("server")}}
+
+###
+
+### Add empty case note
+
+POST {{baseUrl}}/cases/{{caseId}}/notes
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "content": "   "
+}
+
+###
+
+### Add empty case evidence
+
+POST {{baseUrl}}/cases/{{caseId}}/evidence
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "type": "CHAT_LOG",
+  "value": "   "
+}
+
+###
+
+### Get unknown report
+
+GET {{baseUrl}}/reports/{{missingId}}
+Authorization: Bearer {{$auth.token("server")}}

@@ -43,14 +43,6 @@ Authorization: Bearer {{$auth.token("server")}}
 
 ###
 
-### Get unknown moderation case
-# @name getUnknownCase
-
-GET {{baseUrl}}/cases/{{missingId}}
-Authorization: Bearer {{$auth.token("server")}}
-
-###
-
 ### Get all moderation cases
 # @name getCases
 

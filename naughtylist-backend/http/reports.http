@@ -45,14 +45,6 @@ Authorization: Bearer {{$auth.token("server")}}
 
 ###
 
-### Get unknown report
-# @name getUnknownReport
-
-GET {{baseUrl}}/reports/{{missingId}}
-Authorization: Bearer {{$auth.token("server")}}
-
-###
-
 ### Get all reports
 # @name getReports
 

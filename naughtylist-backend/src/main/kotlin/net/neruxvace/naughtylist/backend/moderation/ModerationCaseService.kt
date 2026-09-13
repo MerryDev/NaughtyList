@@ -5,6 +5,7 @@ import net.neruxvace.naughtylist.backend.jooq.tables.records.ModerationCaseRecor
 import net.neruxvace.naughtylist.backend.jooq.tables.references.MODERATION_CASE
 import net.neruxvace.naughtylist.backend.jooq.tables.references.PLAYER
 import net.neruxvace.naughtylist.backend.moderation.request.CreateModerationCaseRequest
+import net.neruxvace.naughtylist.backend.moderation.request.UpdateModerationCaseRequest
 import org.jooq.Condition
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
@@ -53,6 +54,33 @@ class ModerationCaseService(private val context: DSLContext) {
 
         return map(record)
     }
+
+    fun update(id: Long, request: UpdateModerationCaseRequest): ModerationCaseResponse? {
+        val case = context
+            .selectFrom(MODERATION_CASE)
+            .where(MODERATION_CASE.ID.eq(id))
+            .fetchOne() ?: return null
+
+        if (case.status != CaseStatus.OPEN) {
+            throw ResponseStatusException(HttpStatus.CONFLICT, "Moderation case is not open")
+        }
+
+        request.assignedTo?.let { requirePlayer(it, "Assigned player not found") }
+
+        val hasChanges = request.title != null || request.summary != null || request.assignedTo != null
+        if (!hasChanges) return map(case)
+
+        val update = context.updateQuery(MODERATION_CASE)
+        request.title?.let { update.addValue(MODERATION_CASE.TITLE, it) }
+        request.summary?.let { update.addValue(MODERATION_CASE.SUMMARY, it) }
+        request.assignedTo?.let { update.addValue(MODERATION_CASE.ASSIGNED_TO, it) }
+
+        update.addConditions(MODERATION_CASE.ID.eq(id))
+        update.execute()
+
+        return findById(id) ?: error("Moderation case disappeared after update")
+    }
+
 
     private fun requirePlayer(uuid: UUID, message: String) {
         val exists = context.fetchExists(

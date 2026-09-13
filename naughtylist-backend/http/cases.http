@@ -60,3 +60,25 @@ Authorization: Bearer {{$auth.token("server")}}
 
 GET {{baseUrl}}/cases?status=OPEN&assignedTo={{testPlayerUuid}}
 Authorization: Bearer {{$auth.token("server")}}
+
+### Update moderation case
+
+PATCH {{baseUrl}}/cases/1
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "title": "Updated cheating investigation",
+  "summary": "Additional suspicious behaviour was found",
+  "assignedTo": "{{testPlayerUuid}}"
+}
+
+### Update only case title
+
+PATCH {{baseUrl}}/cases/1
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "title": "Updated investigation"
+}

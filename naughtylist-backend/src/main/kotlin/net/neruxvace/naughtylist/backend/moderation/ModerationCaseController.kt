@@ -3,9 +3,11 @@ package net.neruxvace.naughtylist.backend.moderation
 import net.neruxvace.naughtylist.backend.auth.CurrentActor
 import net.neruxvace.naughtylist.backend.jooq.enums.CaseStatus
 import net.neruxvace.naughtylist.backend.moderation.request.CreateModerationCaseRequest
+import net.neruxvace.naughtylist.backend.moderation.request.UpdateModerationCaseRequest
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -44,6 +46,12 @@ class ModerationCaseController(
         val actor = currentActor.requireActor()
 
         return service.create(request, actor.playerUuid)
+    }
+
+    @PatchMapping("/{id}")
+    @PreAuthorize("hasAuthority('SCOPE_case:write')")
+    fun updateCase(@PathVariable id: Long, @RequestBody request: UpdateModerationCaseRequest): ModerationCaseResponse {
+        return service.update(id, request) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Moderation case not found")
     }
 
 }

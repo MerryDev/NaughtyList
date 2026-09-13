@@ -1,9 +1,11 @@
 package net.neruxvace.naughtylist.backend.moderation
 
 import net.neruxvace.naughtylist.backend.jooq.enums.CaseStatus
+import net.neruxvace.naughtylist.backend.jooq.enums.ReportStatus
 import net.neruxvace.naughtylist.backend.jooq.tables.records.ModerationCaseRecord
 import net.neruxvace.naughtylist.backend.jooq.tables.references.MODERATION_CASE
 import net.neruxvace.naughtylist.backend.jooq.tables.references.PLAYER
+import net.neruxvace.naughtylist.backend.jooq.tables.references.REPORT
 import net.neruxvace.naughtylist.backend.moderation.request.CreateModerationCaseRequest
 import net.neruxvace.naughtylist.backend.moderation.request.UpdateModerationCaseRequest
 import net.neruxvace.naughtylist.backend.persistence.required
@@ -101,6 +103,8 @@ class ModerationCaseService(private val context: DSLContext) {
             throw ResponseStatusException(HttpStatus.CONFLICT, "Case is not open")
         }
 
+        requireNoOpenReports(id)
+
         val updated = context
             .update(MODERATION_CASE)
             .set(MODERATION_CASE.STATUS, status)
@@ -110,6 +114,19 @@ class ModerationCaseService(private val context: DSLContext) {
             .fetchOne() ?: error("Failed to update moderation case status")
 
         return map(updated)
+    }
+
+    private fun requireNoOpenReports(caseId: Long) {
+        val hasOpenReports = context.fetchExists(
+            context.selectOne()
+                .from(REPORT)
+                .where(REPORT.CASE_ID.eq(caseId))
+                .and(REPORT.STATUS.eq(ReportStatus.OPEN))
+        )
+
+        if (hasOpenReports) {
+            throw ResponseStatusException(HttpStatus.CONFLICT, "Case has open reports")
+        }
     }
 
     private fun requirePlayer(uuid: UUID, message: String) {

@@ -4,6 +4,7 @@ import net.neruxvace.naughtylist.backend.jooq.enums.CaseStatus
 import net.neruxvace.naughtylist.backend.jooq.tables.records.CaseEvidenceRecord
 import net.neruxvace.naughtylist.backend.jooq.tables.references.CASE_EVIDENCE
 import net.neruxvace.naughtylist.backend.jooq.tables.references.MODERATION_CASE
+import net.neruxvace.naughtylist.backend.persistence.required
 import org.jooq.DSLContext
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -54,11 +55,11 @@ class CaseEvidenceService(private val context: DSLContext) {
 
     private fun map(record: CaseEvidenceRecord): CaseEvidenceResponse =
         CaseEvidenceResponse(
-            id = requireNotNull(record.id),
+            id = record.id.required(),
             caseId = record.caseId,
             addedBy = record.addedBy,
             type = record.type,
             value = record.value,
-            createdAt = requireNotNull(record.createdAt),
+            createdAt = record.createdAt.required()
         )
 }

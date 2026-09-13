@@ -6,6 +6,7 @@ import net.neruxvace.naughtylist.backend.jooq.tables.references.MODERATION_CASE
 import net.neruxvace.naughtylist.backend.jooq.tables.references.PLAYER
 import net.neruxvace.naughtylist.backend.moderation.request.CreateModerationCaseRequest
 import net.neruxvace.naughtylist.backend.moderation.request.UpdateModerationCaseRequest
+import net.neruxvace.naughtylist.backend.persistence.required
 import org.jooq.Condition
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
@@ -122,14 +123,14 @@ class ModerationCaseService(private val context: DSLContext) {
 
     private fun map(record: ModerationCaseRecord): ModerationCaseResponse =
         ModerationCaseResponse(
-            id = requireNotNull(record.id),
+            id = record.id.required(),
             targetUuid = record.targetUuid,
-            status = requireNotNull(record.status),
+            status = record.status.required(),
             title = record.title,
             summary = record.summary,
             createdBy = record.createdBy,
             assignedTo = record.assignedTo,
-            createdAt = requireNotNull(record.createdAt),
+            createdAt = record.createdAt.required(),
             closedAt = record.closedAt
         )
 }

@@ -9,6 +9,7 @@ import net.neruxvace.naughtylist.backend.jooq.tables.references.REASON
 import net.neruxvace.naughtylist.backend.jooq.tables.references.REPORT
 import net.neruxvace.naughtylist.backend.moderation.ModerationCaseService
 import net.neruxvace.naughtylist.backend.moderation.request.CreateModerationCaseRequest
+import net.neruxvace.naughtylist.backend.persistence.required
 import net.neruxvace.naughtylist.backend.report.request.CreateReportRequest
 import net.neruxvace.naughtylist.backend.report.request.UpdateReportCaseRequest
 import org.jooq.Condition
@@ -136,15 +137,15 @@ class ReportService(
 
     private fun map(record: ReportRecord): ReportResponse {
         return ReportResponse(
-            id = requireNotNull(record.id),
+            id = record.id.required(),
             replayId = record.replayId,
             serverName = record.serverName,
             reporterUuid = record.reporterUuid,
             targetUuid = record.targetUuid,
             reasonId = record.reasonId,
-            status = requireNotNull(record.status),
+            status = record.status.required(),
             caseId = record.caseId,
-            createdAt = requireNotNull(record.createdAt)
+            createdAt = record.createdAt.required()
         )
     }
 
@@ -178,7 +179,7 @@ class ReportService(
 
         return when (openCases.size) {
             0 -> moderationCaseService.create(CreateModerationCaseRequest(targetUuid), actorUuid).id
-            1 -> requireNotNull(openCases.single().id)
+            1 -> openCases.single().id.required()
             else -> throw ResponseStatusException(HttpStatus.CONFLICT, "Multiple open moderation cases exist; assign the report to a case before accepting it")
         }
     }

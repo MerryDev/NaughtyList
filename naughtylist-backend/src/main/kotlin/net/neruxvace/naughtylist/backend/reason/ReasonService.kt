@@ -1,6 +1,7 @@
 package net.neruxvace.naughtylist.backend.reason
 
 import net.neruxvace.naughtylist.backend.jooq.tables.references.REASON
+import net.neruxvace.naughtylist.backend.persistence.required
 import net.neruxvace.naughtylist.backend.reason.request.CreateReasonRequest
 import net.neruxvace.naughtylist.backend.reason.request.UpdateReasonRequest
 import org.jooq.DSLContext
@@ -18,11 +19,11 @@ class ReasonService(private val context: DSLContext) {
             .fetch()
             .map {
                 ReasonResponse(
-                    id = requireNotNull(it.id),
+                    id = it.id.required(),
                     key = it.key, name = it.name,
                     description = it.description,
-                    enabled = requireNotNull(it.enabled),
-                    createdAt = requireNotNull(it.createdAt)
+                    enabled = it.enabled.required(),
+                    createdAt = it.createdAt.required()
                 )
             }
     }
@@ -34,11 +35,11 @@ class ReasonService(private val context: DSLContext) {
             .fetchOne() ?: return null
 
         return ReasonResponse(
-            id = requireNotNull(record.id),
+            id = record.id.required(),
             key = record.key, name = record.name,
             description = record.description,
-            enabled = requireNotNull(record.enabled),
-            createdAt = requireNotNull(record.createdAt)
+            enabled = record.enabled.required(),
+            createdAt = record.createdAt.required()
         )
     }
 
@@ -54,11 +55,11 @@ class ReasonService(private val context: DSLContext) {
             .fetchOne() ?: error("Failed to create reason with key ${request.key}")
 
         return ReasonResponse(
-            id = requireNotNull(record.id),
+            id = record.id.required(),
             key = record.key, name = record.name,
             description = record.description,
-            enabled = requireNotNull(record.enabled),
-            createdAt = requireNotNull(record.createdAt)
+            enabled = record.enabled.required(),
+            createdAt = record.createdAt.required()
         )
     }
 

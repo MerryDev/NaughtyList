@@ -5,6 +5,7 @@ import net.neruxvace.naughtylist.backend.jooq.tables.records.CaseNoteRecord
 import net.neruxvace.naughtylist.backend.jooq.tables.references.CASE_NOTE
 import net.neruxvace.naughtylist.backend.jooq.tables.references.MODERATION_CASE
 import net.neruxvace.naughtylist.backend.moderation.note.request.CreateCaseNoteRequest
+import net.neruxvace.naughtylist.backend.persistence.required
 import org.jooq.DSLContext
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -55,10 +56,10 @@ class CaseNoteService(private val context: DSLContext) {
 
     private fun map(record: CaseNoteRecord): CaseNoteResponse =
         CaseNoteResponse(
-            id = requireNotNull(record.id),
+            id = record.id.required(),
             caseId = record.caseId,
             authorUuid = record.authorUuid,
             content = record.content,
-            createdAt = requireNotNull(record.createdAt),
+            createdAt = record.createdAt.required()
         )
 }

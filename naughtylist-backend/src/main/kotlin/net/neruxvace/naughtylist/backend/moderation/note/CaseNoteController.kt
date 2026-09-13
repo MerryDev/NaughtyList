@@ -5,6 +5,7 @@ import net.neruxvace.naughtylist.backend.auth.CurrentActor
 import net.neruxvace.naughtylist.backend.moderation.note.request.CreateCaseNoteRequest
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -18,6 +19,11 @@ class CaseNoteController(
     private val service: CaseNoteService,
     private val currentActor: CurrentActor
 ) {
+
+    @GetMapping
+    fun getNotes(@PathVariable caseId: Long): List<CaseNoteResponse> {
+        return service.findAllByCaseId(caseId)
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

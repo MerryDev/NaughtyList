@@ -14,6 +14,24 @@ import java.util.UUID
 @Service
 class CaseNoteService(private val context: DSLContext) {
 
+    fun findAllByCaseId(caseId: Long): List<CaseNoteResponse> {
+        val caseExists = context.fetchExists(
+            context
+                .selectOne()
+                .from(MODERATION_CASE)
+                .where(MODERATION_CASE.ID.eq(caseId))
+        )
+        if (!caseExists) {
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Moderation case not found")
+        }
+
+        return context
+            .selectFrom(CASE_NOTE)
+            .where(CASE_NOTE.CASE_ID.eq(caseId))
+            .orderBy(CASE_NOTE.CREATED_AT.asc())
+            .fetch().map(::map)
+    }
+
     fun create(caseId: Long, request: CreateCaseNoteRequest, actorUuid: UUID): CaseNoteResponse {
         val case = context
             .selectFrom(MODERATION_CASE)

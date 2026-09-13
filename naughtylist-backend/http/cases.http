@@ -112,3 +112,13 @@ Content-Type: application/json
 {
   "content": "   "
 }
+
+### Get notes for moderation case
+
+GET {{baseUrl}}/cases/3/notes
+Authorization: Bearer {{$auth.token("server")}}
+
+### Get notes for unknown moderation case
+
+GET {{baseUrl}}/cases/999999/notes
+Authorization: Bearer {{$auth.token("server")}}

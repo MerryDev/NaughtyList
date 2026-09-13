@@ -1,0 +1,189 @@
+### Create moderation case
+
+POST {{baseUrl}}/cases
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "targetUuid": "{{testTargetUuid}}",
+  "title": "Cheating investigation",
+  "summary": "Investigation regarding suspicious player behaviour",
+  "assignedTo": "{{testPlayerUuid}}"
+}
+
+### Create minimal moderation case
+
+POST {{baseUrl}}/cases
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "targetUuid": "{{testTargetUuid}}"
+}
+
+### Get moderation case by ID
+
+GET {{baseUrl}}/cases/1
+Authorization: Bearer {{$auth.token("server")}}
+
+### Get unknown moderation case
+
+GET {{baseUrl}}/cases/999999
+Authorization: Bearer {{$auth.token("server")}}
+
+### Get all moderation cases
+
+GET {{baseUrl}}/cases
+Authorization: Bearer {{$auth.token("server")}}
+
+### Get open moderation cases
+
+GET {{baseUrl}}/cases?status=OPEN
+Authorization: Bearer {{$auth.token("server")}}
+
+### Get moderation cases for target
+
+GET {{baseUrl}}/cases?targetUuid={{testTargetUuid}}
+Authorization: Bearer {{$auth.token("server")}}
+
+### Get moderation cases assigned to moderator
+
+GET {{baseUrl}}/cases?assignedTo={{testPlayerUuid}}
+Authorization: Bearer {{$auth.token("server")}}
+
+### Get open moderation cases for target
+
+GET {{baseUrl}}/cases?status=OPEN&targetUuid={{testTargetUuid}}
+Authorization: Bearer {{$auth.token("server")}}
+
+### Get open moderation cases assigned to moderator
+
+GET {{baseUrl}}/cases?status=OPEN&assignedTo={{testPlayerUuid}}
+Authorization: Bearer {{$auth.token("server")}}
+
+### Update moderation case
+
+PATCH {{baseUrl}}/cases/1
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "title": "Updated cheating investigation",
+  "summary": "Additional suspicious behaviour was found",
+  "assignedTo": "{{testPlayerUuid}}"
+}
+
+### Update only case title
+
+PATCH {{baseUrl}}/cases/1
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "title": "Updated investigation"
+}
+
+### Close moderation case
+
+POST {{baseUrl}}/cases/1/close
+Authorization: Bearer {{actorToken}}
+
+### Dismiss moderation case
+
+POST {{baseUrl}}/cases/2/dismiss
+Authorization: Bearer {{actorToken}}
+
+### Add note to moderation case
+
+POST {{baseUrl}}/cases/3/notes
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "content": "Replay reviewed. Suspicious behaviour requires further investigation."
+}
+
+### Add empty note
+
+POST {{baseUrl}}/cases/3/notes
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "content": "   "
+}
+
+### Get notes for moderation case
+
+GET {{baseUrl}}/cases/3/notes
+Authorization: Bearer {{$auth.token("server")}}
+
+### Get notes for unknown moderation case
+
+GET {{baseUrl}}/cases/999999/notes
+Authorization: Bearer {{$auth.token("server")}}
+
+### Add replay evidence to moderation case
+
+POST {{baseUrl}}/cases/3/evidence
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "type": "REPLAY",
+  "value": "replay-abc-123"
+}
+
+### Add screenshot evidence to moderation case
+
+POST {{baseUrl}}/cases/3/evidence
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "type": "SCREENSHOT",
+  "value": "https://neruxvace.net/evidence/screenshot-1.png"
+}
+
+### Add video evidence to moderation case
+
+POST {{baseUrl}}/cases/3/evidence
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "type": "VIDEO",
+  "value": "https://neruxvace.net/evidence/screenshot-1.mp4"
+}
+
+### Add chatlog evidence to moderation case
+
+POST {{baseUrl}}/cases/3/evidence
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "type": "CHAT_LOG",
+  "value": "https://chatlog.neruxvace.net/replay-abc-123/Test123"
+}
+
+### Add empty evidence
+
+POST {{baseUrl}}/cases/3/evidence
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "type": "CHAT_LOG",
+  "value": "   "
+}
+
+### Get evidence for moderation case
+
+GET {{baseUrl}}/cases/3/evidence
+Authorization: Bearer {{$auth.token("server")}}
+
+### Get evidence for unknown moderation case
+
+GET {{baseUrl}}/cases/999999/evidence
+Authorization: Bearer {{$auth.token("server")}}

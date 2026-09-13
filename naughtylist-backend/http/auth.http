@@ -12,7 +12,8 @@ Content-Type: application/json
   "playerUuid": "{{testPlayerUuid}}",
   "permissions": [
     "naughtylist.reason.write",
-    "naughtylist.report.review"
+    "naughtylist.report.review",
+    "naughtylist.case.write"
   ]
 }
 

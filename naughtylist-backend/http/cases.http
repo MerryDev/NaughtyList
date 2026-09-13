@@ -1,0 +1,22 @@
+### Create moderation case
+
+POST {{baseUrl}}/cases
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "targetUuid": "{{testTargetUuid}}",
+  "title": "Cheating investigation",
+  "summary": "Investigation regarding suspicious player behaviour",
+  "assignedTo": "{{testPlayerUuid}}"
+}
+
+### Create minimal moderation case
+
+POST {{baseUrl}}/cases
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "targetUuid": "{{testTargetUuid}}"
+}

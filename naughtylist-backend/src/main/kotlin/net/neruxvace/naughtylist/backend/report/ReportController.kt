@@ -6,7 +6,9 @@ import net.neruxvace.naughtylist.backend.jooq.enums.ReportStatus
 import net.neruxvace.naughtylist.backend.report.request.CreateReportRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.server.ResponseStatusException
 import java.util.UUID
 
 @RestController
@@ -36,6 +38,12 @@ class ReportController(
     fun createReport(@Valid @RequestBody request: CreateReportRequest): ReportResponse {
         val client = currentClient.requireServer()
         return service.create(request, client.clientId)
+    }
+
+    @PostMapping("/{id}/close")
+    @PreAuthorize("hasAuthority('SCOPE_report:review')")
+    fun closeReport(@PathVariable id: Long): ReportResponse? {
+        return service.close(id) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Report not found")
     }
 
 }

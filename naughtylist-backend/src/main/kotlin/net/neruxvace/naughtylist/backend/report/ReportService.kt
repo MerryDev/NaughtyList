@@ -58,6 +58,26 @@ class ReportService(private val context: DSLContext) {
         return map(record)
     }
 
+    fun close(id: Long): ReportResponse? {
+        val report = context
+            .selectFrom(REPORT)
+            .where(REPORT.ID.eq(id))
+            .fetchOne() ?: return null
+
+        if (report.status != ReportStatus.OPEN) {
+            throw ResponseStatusException(HttpStatus.CONFLICT, "Report is not open")
+        }
+
+        val updated = context
+            .update(REPORT)
+            .set(REPORT.STATUS, ReportStatus.CLOSED)
+            .where(REPORT.ID.eq(id))
+            .returning()
+            .fetchOne() ?: error("Failed to close report")
+
+        return map(updated)
+    }
+
     private fun map(record: ReportRecord): ReportResponse {
         return ReportResponse(
             id = requireNotNull(record.id),

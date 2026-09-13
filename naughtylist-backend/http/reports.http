@@ -62,3 +62,8 @@ Authorization: Bearer {{$auth.token("server")}}
 
 GET {{baseUrl}}/reports?status=OPEN&targetUuid={{testTargetUuid}}&serverName={{apiClientId}}
 Authorization: Bearer {{$auth.token("server")}}
+
+### Close report
+
+POST {{baseUrl}}/reports/1/close
+Authorization: Bearer {{actorToken}}

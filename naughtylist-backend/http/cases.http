@@ -299,3 +299,60 @@ Content-Type: application/json
   "targetUuid": "{{acceptConflictTargetUuid}}",
   "title": "Acceptance conflict case two"
 }
+
+###
+
+### Close investigation case with open report
+# @name closeInvestigationCaseExpectingConflict
+
+POST {{baseUrl}}/cases/{{caseId}}/close
+Authorization: Bearer {{actorToken}}
+
+> {%
+    client.test("Case with open report cannot be closed", function () {
+        client.assert(response.status === 409, "Expected HTTP 409");
+    });
+%}
+
+###
+
+### Dismiss investigation case with open report
+# @name dismissInvestigationCaseExpectingConflict
+
+POST {{baseUrl}}/cases/{{caseId}}/dismiss
+Authorization: Bearer {{actorToken}}
+
+> {%
+    client.test("Case with open report cannot be dismissed", function () {
+        client.assert(response.status === 409, "Expected HTTP 409");
+    });
+%}
+
+###
+
+### Close investigation case
+# @name closeInvestigationCase
+
+POST {{baseUrl}}/cases/{{caseId}}/close
+Authorization: Bearer {{actorToken}}
+
+> {%
+    client.test("Case close returns 200", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+    });
+%}
+
+###
+
+### Get closed investigation case
+# @name getClosedInvestigationCase
+
+GET {{baseUrl}}/cases/{{caseId}}
+Authorization: Bearer {{$auth.token("server")}}
+
+> {%
+    client.test("Case is closed", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+        client.assert(response.body.status === "CLOSED", "Expected CLOSED status");
+    });
+%}

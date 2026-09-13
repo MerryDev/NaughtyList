@@ -231,3 +231,18 @@ Authorization: Bearer {{actorToken}}
         client.assert(response.status === 409, "Expected HTTP 409");
     });
 %}
+
+###
+
+### Close assigned report
+# @name closeAssignedReport
+
+POST {{baseUrl}}/reports/{{reportId}}/close
+Authorization: Bearer {{actorToken}}
+
+> {%
+    client.test("Report is closed", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+        client.assert(response.body.status === "CLOSED", "Expected CLOSED status");
+    });
+%}

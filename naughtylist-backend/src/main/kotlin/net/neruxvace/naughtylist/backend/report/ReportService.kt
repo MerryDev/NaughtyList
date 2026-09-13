@@ -1,6 +1,7 @@
 package net.neruxvace.naughtylist.backend.report
 
 import net.neruxvace.naughtylist.backend.jooq.enums.ReportStatus
+import net.neruxvace.naughtylist.backend.jooq.tables.records.ReportRecord
 import net.neruxvace.naughtylist.backend.jooq.tables.references.PLAYER
 import net.neruxvace.naughtylist.backend.jooq.tables.references.REASON
 import net.neruxvace.naughtylist.backend.jooq.tables.references.REPORT
@@ -27,19 +28,7 @@ class ReportService(private val context: DSLContext) {
             .selectFrom(REPORT)
             .where(condition)
             .fetch()
-            .map { record ->
-                ReportResponse(
-                    id = requireNotNull(record.id),
-                    replayId = record.replayId,
-                    serverName = record.serverName,
-                    reporterUuid = record.reporterUuid,
-                    targetUuid = record.targetUuid,
-                    reasonId = record.reasonId,
-                    status = requireNotNull(record.status),
-                    caseId = record.caseId,
-                    createdAt = requireNotNull(record.createdAt)
-                )
-            }
+            .map { map(it) }
     }
 
     fun findById(id: Long): ReportResponse? {
@@ -48,17 +37,7 @@ class ReportService(private val context: DSLContext) {
             .where(REPORT.ID.eq(id))
             .fetchOne() ?: return null
 
-        return ReportResponse(
-            id = requireNotNull(record.id),
-            replayId = record.replayId,
-            serverName = record.serverName,
-            reporterUuid = record.reporterUuid,
-            targetUuid = record.targetUuid,
-            reasonId = record.reasonId,
-            status = requireNotNull(record.status),
-            caseId = record.caseId,
-            createdAt = requireNotNull(record.createdAt)
-        )
+        return map(record)
     }
 
     fun create(request: CreateReportRequest, serverName: String): ReportResponse {
@@ -76,6 +55,10 @@ class ReportService(private val context: DSLContext) {
             .returning()
             .fetchOne() ?: error("Failed to create report")
 
+        return map(record)
+    }
+
+    private fun map(record: ReportRecord): ReportResponse {
         return ReportResponse(
             id = requireNotNull(record.id),
             replayId = record.replayId,

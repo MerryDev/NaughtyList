@@ -1,8 +1,11 @@
 ### Show current API client
+# @name getCurrentClient
+
 GET {{baseUrl}}/auth/me
 Authorization: Bearer {{$auth.token("server")}}
 
 ### Create actor token
+# @name createActorToken
 
 POST {{baseUrl}}/auth/actor-token
 Authorization: Bearer {{$auth.token("server")}}

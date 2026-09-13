@@ -32,12 +32,7 @@ class ReportService(private val context: DSLContext) {
     }
 
     fun findById(id: Long): ReportResponse? {
-        val record = context
-            .selectFrom(REPORT)
-            .where(REPORT.ID.eq(id))
-            .fetchOne() ?: return null
-
-        return map(record)
+        return findReport(id)?.let { map(it) }
     }
 
     fun create(request: CreateReportRequest, serverName: String): ReportResponse {
@@ -59,10 +54,7 @@ class ReportService(private val context: DSLContext) {
     }
 
     fun close(id: Long): ReportResponse? {
-        val report = context
-            .selectFrom(REPORT)
-            .where(REPORT.ID.eq(id))
-            .fetchOne() ?: return null
+        val report = findReport(id) ?: return null
 
         if (report.status != ReportStatus.OPEN) {
             throw ResponseStatusException(HttpStatus.CONFLICT, "Report is not open")
@@ -90,6 +82,13 @@ class ReportService(private val context: DSLContext) {
             caseId = record.caseId,
             createdAt = requireNotNull(record.createdAt)
         )
+    }
+
+    private fun findReport(id: Long): ReportRecord? {
+        return context
+            .selectFrom(REPORT)
+            .where(REPORT.ID.eq(id))
+            .fetchOne()
     }
 
     private fun requirePlayer(uuid: UUID) {

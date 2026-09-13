@@ -13,6 +13,11 @@ class CaseEvidenceController(
     private val currentActor: CurrentActor
 ) {
 
+    @GetMapping
+    fun getEvidence(@PathVariable caseId: Long): List<CaseEvidenceResponse> {
+        return service.findAllByCaseId(caseId)
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('SCOPE_case:write')")

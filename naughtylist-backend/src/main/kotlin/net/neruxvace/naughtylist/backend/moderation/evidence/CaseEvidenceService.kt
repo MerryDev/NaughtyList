@@ -13,6 +13,23 @@ import java.util.*
 @Service
 class CaseEvidenceService(private val context: DSLContext) {
 
+    fun findAllByCaseId(caseId: Long): List<CaseEvidenceResponse> {
+        val exists = context.fetchExists(
+            context
+                .selectOne()
+                .from(MODERATION_CASE)
+                .where(MODERATION_CASE.ID.eq(caseId))
+        )
+
+        if (!exists) throw ResponseStatusException(HttpStatus.NOT_FOUND, "Moderation case not found")
+
+        return context
+            .selectFrom(CASE_EVIDENCE)
+            .where(CASE_EVIDENCE.CASE_ID.eq(caseId))
+            .orderBy(CASE_EVIDENCE.CREATED_AT.asc())
+            .fetch().map(::map)
+    }
+
     fun create(caseId: Long, request: CreateCaseEvidenceRequest, actorUuid: UUID): CaseEvidenceResponse {
         val case = context
             .selectFrom(MODERATION_CASE)

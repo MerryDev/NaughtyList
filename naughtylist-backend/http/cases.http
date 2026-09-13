@@ -177,3 +177,13 @@ Content-Type: application/json
   "type": "CHAT_LOG",
   "value": "   "
 }
+
+### Get evidence for moderation case
+
+GET {{baseUrl}}/cases/3/evidence
+Authorization: Bearer {{$auth.token("server")}}
+
+### Get evidence for unknown moderation case
+
+GET {{baseUrl}}/cases/999999/evidence
+Authorization: Bearer {{$auth.token("server")}}

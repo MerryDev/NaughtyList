@@ -1,4 +1,5 @@
 ### Create report
+# @name createReport
 
 POST {{baseUrl}}/reports
 Authorization: Bearer {{$auth.token("server")}}
@@ -7,11 +8,18 @@ Content-Type: application/json
 {
   "reporterUuid": "{{testPlayerUuid}}",
   "targetUuid": "{{testTargetUuid}}",
-  "reasonId": 1,
-  "replayId": "replay-abc-123"
+  "reasonId": {{reasonId}},
+  "replayId": "{{testReplayId}}"
 }
+
+> {%
+    client.global.set("reportId", response.body.id);
+%}
+
+###
 
 ### Create report without replay
+# @name createReportWithoutReplay
 
 POST {{baseUrl}}/reports
 Authorization: Bearer {{$auth.token("server")}}
@@ -20,70 +28,127 @@ Content-Type: application/json
 {
   "reporterUuid": "{{testPlayerUuid}}",
   "targetUuid": "{{testTargetUuid}}",
-  "reasonId": 1
+  "reasonId": {{reasonId}}
 }
 
+> {%
+    client.global.set("reportWithoutReplayId", response.body.id);
+%}
+
+###
+
+### Get created report
+# @name getReport
+
+GET {{baseUrl}}/reports/{{reportId}}
+Authorization: Bearer {{$auth.token("server")}}
+
+###
+
+### Get unknown report
+# @name getUnknownReport
+
+GET {{baseUrl}}/reports/{{missingId}}
+Authorization: Bearer {{$auth.token("server")}}
+
+###
+
 ### Get all reports
+# @name getReports
 
 GET {{baseUrl}}/reports
 Authorization: Bearer {{$auth.token("server")}}
 
-### Get report by ID
-
-GET {{baseUrl}}/reports/1
-Authorization: Bearer {{$auth.token("server")}}
-
-### Get unknown report
-
-GET {{baseUrl}}/reports/999999
-Authorization: Bearer {{$auth.token("server")}}
+###
 
 ### Get open reports
+# @name getOpenReports
 
 GET {{baseUrl}}/reports?status=OPEN
 Authorization: Bearer {{$auth.token("server")}}
 
+###
+
 ### Get reports for target
+# @name getReportsForTarget
 
 GET {{baseUrl}}/reports?targetUuid={{testTargetUuid}}
 Authorization: Bearer {{$auth.token("server")}}
 
+###
+
 ### Get reports from server
+# @name getReportsFromServer
 
 GET {{baseUrl}}/reports?serverName={{apiClientId}}
 Authorization: Bearer {{$auth.token("server")}}
 
+###
+
 ### Get open reports for target
+# @name getOpenReportsForTarget
 
 GET {{baseUrl}}/reports?status=OPEN&targetUuid={{testTargetUuid}}
 Authorization: Bearer {{$auth.token("server")}}
 
+###
+
 ### Get open reports for target on server
+# @name getOpenReportsForTargetOnServer
 
 GET {{baseUrl}}/reports?status=OPEN&targetUuid={{testTargetUuid}}&serverName={{apiClientId}}
 Authorization: Bearer {{$auth.token("server")}}
 
-### Close report
+###
 
-POST {{baseUrl}}/reports/1/close
-Authorization: Bearer {{actorToken}}
+### Assign report to investigation case
+# @name assignReportToCase
 
-### Assign report to moderation case
-
-PUT {{baseUrl}}/reports/1/case
+PUT {{baseUrl}}/reports/{{reportId}}/case
 Authorization: Bearer {{actorToken}}
 Content-Type: application/json
 
 {
-  "caseId": 1
+  "caseId": {{caseId}}
 }
 
-### Remove report from moderation case
+###
 
-PUT {{baseUrl}}/reports/1/case
+### Remove report from investigation case
+# @name removeReportFromCase
+
+PUT {{baseUrl}}/reports/{{reportId}}/case
 Authorization: Bearer {{actorToken}}
 Content-Type: application/json
 
 {
   "caseId": null
 }
+
+###
+
+### Create report for close flow
+# @name createCloseReport
+
+POST {{baseUrl}}/reports
+Authorization: Bearer {{$auth.token("server")}}
+Content-Type: application/json
+
+{
+  "reporterUuid": "{{testPlayerUuid}}",
+  "targetUuid": "{{testTargetUuid}}",
+  "reasonId": {{reasonId}},
+  "replayId": "{{testReplayId}}"
+}
+
+> {%
+    client.global.set("closeReportId", response.body.id);
+%}
+
+###
+
+### Close report
+# @name closeReport
+
+POST {{baseUrl}}/reports/{{closeReportId}}/close
+Authorization: Bearer {{actorToken}}

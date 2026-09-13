@@ -122,3 +122,58 @@ Authorization: Bearer {{$auth.token("server")}}
 
 GET {{baseUrl}}/cases/999999/notes
 Authorization: Bearer {{$auth.token("server")}}
+
+### Add replay evidence to moderation case
+
+POST {{baseUrl}}/cases/3/evidence
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "type": "REPLAY",
+  "value": "replay-abc-123"
+}
+
+### Add screenshot evidence to moderation case
+
+POST {{baseUrl}}/cases/3/evidence
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "type": "SCREENSHOT",
+  "value": "https://neruxvace.net/evidence/screenshot-1.png"
+}
+
+### Add video evidence to moderation case
+
+POST {{baseUrl}}/cases/3/evidence
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "type": "VIDEO",
+  "value": "https://neruxvace.net/evidence/screenshot-1.mp4"
+}
+
+### Add chatlog evidence to moderation case
+
+POST {{baseUrl}}/cases/3/evidence
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "type": "CHAT_LOG",
+  "value": "https://chatlog.neruxvace.net/replay-abc-123/Test123"
+}
+
+### Add empty evidence
+
+POST {{baseUrl}}/cases/3/evidence
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "type": "CHAT_LOG",
+  "value": "   "
+}

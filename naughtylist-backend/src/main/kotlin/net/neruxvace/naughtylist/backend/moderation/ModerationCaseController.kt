@@ -1,6 +1,7 @@
 package net.neruxvace.naughtylist.backend.moderation
 
 import net.neruxvace.naughtylist.backend.auth.CurrentActor
+import net.neruxvace.naughtylist.backend.jooq.enums.CaseStatus
 import net.neruxvace.naughtylist.backend.moderation.request.CreateModerationCaseRequest
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
@@ -9,9 +10,11 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
+import java.util.UUID
 
 @RestController
 @RequestMapping("/api/v1/cases")
@@ -19,6 +22,15 @@ class ModerationCaseController(
     private val service: ModerationCaseService,
     private val currentActor: CurrentActor
 ) {
+
+    @GetMapping
+    fun getCases(
+        @RequestParam(required = false) status: CaseStatus?,
+        @RequestParam(required = false) targetUuid: UUID?,
+        @RequestParam(required = false) assignedTo: UUID?
+    ): List<ModerationCaseResponse> {
+        return service.findAll(status, targetUuid, assignedTo)
+    }
 
     @GetMapping("/{id}")
     fun getCase(@PathVariable id: Long): ModerationCaseResponse? {

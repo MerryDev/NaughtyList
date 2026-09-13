@@ -30,3 +30,33 @@ Authorization: Bearer {{$auth.token("server")}}
 
 GET {{baseUrl}}/cases/999999
 Authorization: Bearer {{$auth.token("server")}}
+
+### Get all moderation cases
+
+GET {{baseUrl}}/cases
+Authorization: Bearer {{$auth.token("server")}}
+
+### Get open moderation cases
+
+GET {{baseUrl}}/cases?status=OPEN
+Authorization: Bearer {{$auth.token("server")}}
+
+### Get moderation cases for target
+
+GET {{baseUrl}}/cases?targetUuid={{testTargetUuid}}
+Authorization: Bearer {{$auth.token("server")}}
+
+### Get moderation cases assigned to moderator
+
+GET {{baseUrl}}/cases?assignedTo={{testPlayerUuid}}
+Authorization: Bearer {{$auth.token("server")}}
+
+### Get open moderation cases for target
+
+GET {{baseUrl}}/cases?status=OPEN&targetUuid={{testTargetUuid}}
+Authorization: Bearer {{$auth.token("server")}}
+
+### Get open moderation cases assigned to moderator
+
+GET {{baseUrl}}/cases?status=OPEN&assignedTo={{testPlayerUuid}}
+Authorization: Bearer {{$auth.token("server")}}

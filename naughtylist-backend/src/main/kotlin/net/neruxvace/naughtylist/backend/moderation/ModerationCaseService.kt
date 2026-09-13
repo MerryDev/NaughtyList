@@ -1,10 +1,13 @@
 package net.neruxvace.naughtylist.backend.moderation
 
+import net.neruxvace.naughtylist.backend.jooq.enums.CaseStatus
 import net.neruxvace.naughtylist.backend.jooq.tables.records.ModerationCaseRecord
 import net.neruxvace.naughtylist.backend.jooq.tables.references.MODERATION_CASE
 import net.neruxvace.naughtylist.backend.jooq.tables.references.PLAYER
 import net.neruxvace.naughtylist.backend.moderation.request.CreateModerationCaseRequest
+import org.jooq.Condition
 import org.jooq.DSLContext
+import org.jooq.impl.DSL
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
@@ -12,6 +15,20 @@ import java.util.UUID
 
 @Service
 class ModerationCaseService(private val context: DSLContext) {
+
+    fun findAll(status: CaseStatus?, targetUuid: UUID?, assignedTo: UUID?): List<ModerationCaseResponse> {
+        var condition: Condition = DSL.trueCondition()
+
+        status?.let { condition = condition.and(MODERATION_CASE.STATUS.eq(it)) }
+        targetUuid?.let { condition = condition.and(MODERATION_CASE.TARGET_UUID.eq(it)) }
+        assignedTo?.let { condition = condition.and(MODERATION_CASE.ASSIGNED_TO.eq(it)) }
+
+        return context
+            .selectFrom(MODERATION_CASE)
+            .where(condition)
+            .orderBy(MODERATION_CASE.CREATED_AT.desc())
+            .fetch().map(::map)
+    }
 
     fun findById(id: Long): ModerationCaseResponse? {
         return context

@@ -25,9 +25,10 @@ class ReportController(
     fun getReports(
         @RequestParam(required = false) status: ReportStatus?,
         @RequestParam(required = false) targetUuid: UUID?,
-        @RequestParam(required = false) serverName: String?
+        @RequestParam(required = false) serverName: String?,
+        @RequestParam(required = false) caseId: Long?
     ): List<ReportResponse> {
-        return service.findAll(status, targetUuid, serverName)
+        return service.findAll(status, targetUuid, serverName, caseId)
     }
 
     @GetMapping("/{id}")

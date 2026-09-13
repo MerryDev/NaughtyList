@@ -27,12 +27,13 @@ class ReportService(
     private val moderationCaseService: ModerationCaseService
 ) {
 
-    fun findAll(status: ReportStatus?, targetUuid: UUID?, serverName: String?): List<ReportResponse> {
+    fun findAll(status: ReportStatus?, targetUuid: UUID?, serverName: String?, caseId: Long?): List<ReportResponse> {
         var condition: Condition = DSL.trueCondition()
 
         status?.let { condition = condition.and(REPORT.STATUS.eq(it)) }
         targetUuid?.let { condition = condition.and(REPORT.TARGET_UUID.eq(it)) }
         serverName?.let { condition = condition.and(REPORT.SERVER_NAME.eq(it)) }
+        caseId?.let { condition = condition.and(REPORT.CASE_ID.eq(it)) }
 
         return context
             .selectFrom(REPORT)

@@ -246,3 +246,28 @@ Authorization: Bearer {{actorToken}}
         client.assert(response.body.status === "CLOSED", "Expected CLOSED status");
     });
 %}
+
+###
+
+### List reports by case
+# @name getReportsByCase
+
+GET {{baseUrl}}/reports?caseId={{caseId}}
+Authorization: Bearer {{$auth.token("server")}}
+
+> {%
+    client.test("Reports are filtered by case", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+        client.assert(Array.isArray(response.body), "Expected response array");
+        client.assert(response.body.length > 0, "Expected at least one report");
+
+        const expectedCaseId = Number(client.global.get("caseId"));
+
+        response.body.forEach(function (report) {
+            client.assert(
+                report.caseId === expectedCaseId,
+                "Expected every report to belong to case " + expectedCaseId
+            );
+        });
+    });
+%}

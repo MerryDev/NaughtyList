@@ -1,4 +1,5 @@
-### Create moderation case
+### Create investigation case
+# @name createInvestigationCase
 
 POST {{baseUrl}}/cases
 Authorization: Bearer {{actorToken}}
@@ -6,12 +7,19 @@ Content-Type: application/json
 
 {
   "targetUuid": "{{testTargetUuid}}",
-  "title": "Cheating investigation",
-  "summary": "Investigation regarding suspicious player behaviour",
+  "title": "HTTP client investigation",
+  "summary": "Case used by the HTTP client integration flow",
   "assignedTo": "{{testPlayerUuid}}"
 }
 
+> {%
+    client.global.set("caseId", response.body.id);
+%}
+
+###
+
 ### Create minimal moderation case
+# @name createMinimalCase
 
 POST {{baseUrl}}/cases
 Authorization: Bearer {{actorToken}}
@@ -21,61 +29,95 @@ Content-Type: application/json
   "targetUuid": "{{testTargetUuid}}"
 }
 
-### Get moderation case by ID
+> {%
+    client.global.set("minimalCaseId", response.body.id);
+%}
 
-GET {{baseUrl}}/cases/1
+###
+
+### Get investigation case
+# @name getInvestigationCase
+
+GET {{baseUrl}}/cases/{{caseId}}
 Authorization: Bearer {{$auth.token("server")}}
+
+###
 
 ### Get unknown moderation case
+# @name getUnknownCase
 
-GET {{baseUrl}}/cases/999999
+GET {{baseUrl}}/cases/{{missingId}}
 Authorization: Bearer {{$auth.token("server")}}
 
+###
+
 ### Get all moderation cases
+# @name getCases
 
 GET {{baseUrl}}/cases
 Authorization: Bearer {{$auth.token("server")}}
 
+###
+
 ### Get open moderation cases
+# @name getOpenCases
 
 GET {{baseUrl}}/cases?status=OPEN
 Authorization: Bearer {{$auth.token("server")}}
 
+###
+
 ### Get moderation cases for target
+# @name getCasesForTarget
 
 GET {{baseUrl}}/cases?targetUuid={{testTargetUuid}}
 Authorization: Bearer {{$auth.token("server")}}
 
+###
+
 ### Get moderation cases assigned to moderator
+# @name getAssignedCases
 
 GET {{baseUrl}}/cases?assignedTo={{testPlayerUuid}}
 Authorization: Bearer {{$auth.token("server")}}
 
+###
+
 ### Get open moderation cases for target
+# @name getOpenCasesForTarget
 
 GET {{baseUrl}}/cases?status=OPEN&targetUuid={{testTargetUuid}}
 Authorization: Bearer {{$auth.token("server")}}
 
+###
+
 ### Get open moderation cases assigned to moderator
+# @name getOpenAssignedCases
 
 GET {{baseUrl}}/cases?status=OPEN&assignedTo={{testPlayerUuid}}
 Authorization: Bearer {{$auth.token("server")}}
 
-### Update moderation case
+###
 
-PATCH {{baseUrl}}/cases/1
+### Update investigation case
+# @name updateInvestigationCase
+
+PATCH {{baseUrl}}/cases/{{caseId}}
 Authorization: Bearer {{actorToken}}
 Content-Type: application/json
 
 {
-  "title": "Updated cheating investigation",
+  "title": "Updated HTTP client investigation",
   "summary": "Additional suspicious behaviour was found",
   "assignedTo": "{{testPlayerUuid}}"
 }
 
-### Update only case title
+###
 
-PATCH {{baseUrl}}/cases/1
+### Update investigation case title
+# @name updateInvestigationCaseTitle
+
+PATCH {{baseUrl}}/cases/{{caseId}}
 Authorization: Bearer {{actorToken}}
 Content-Type: application/json
 
@@ -83,19 +125,12 @@ Content-Type: application/json
   "title": "Updated investigation"
 }
 
-### Close moderation case
+###
 
-POST {{baseUrl}}/cases/1/close
-Authorization: Bearer {{actorToken}}
+### Add note to investigation case
+# @name addCaseNote
 
-### Dismiss moderation case
-
-POST {{baseUrl}}/cases/2/dismiss
-Authorization: Bearer {{actorToken}}
-
-### Add note to moderation case
-
-POST {{baseUrl}}/cases/3/notes
+POST {{baseUrl}}/cases/{{caseId}}/notes
 Authorization: Bearer {{actorToken}}
 Content-Type: application/json
 
@@ -103,40 +138,34 @@ Content-Type: application/json
   "content": "Replay reviewed. Suspicious behaviour requires further investigation."
 }
 
-### Add empty note
+###
 
-POST {{baseUrl}}/cases/3/notes
-Authorization: Bearer {{actorToken}}
-Content-Type: application/json
+### Get notes for investigation case
+# @name getCaseNotes
 
-{
-  "content": "   "
-}
-
-### Get notes for moderation case
-
-GET {{baseUrl}}/cases/3/notes
+GET {{baseUrl}}/cases/{{caseId}}/notes
 Authorization: Bearer {{$auth.token("server")}}
 
-### Get notes for unknown moderation case
+###
 
-GET {{baseUrl}}/cases/999999/notes
-Authorization: Bearer {{$auth.token("server")}}
+### Add replay evidence
+# @name addReplayEvidence
 
-### Add replay evidence to moderation case
-
-POST {{baseUrl}}/cases/3/evidence
+POST {{baseUrl}}/cases/{{caseId}}/evidence
 Authorization: Bearer {{actorToken}}
 Content-Type: application/json
 
 {
   "type": "REPLAY",
-  "value": "replay-abc-123"
+  "value": "{{testReplayId}}"
 }
 
-### Add screenshot evidence to moderation case
+###
 
-POST {{baseUrl}}/cases/3/evidence
+### Add screenshot evidence
+# @name addScreenshotEvidence
+
+POST {{baseUrl}}/cases/{{caseId}}/evidence
 Authorization: Bearer {{actorToken}}
 Content-Type: application/json
 
@@ -145,45 +174,90 @@ Content-Type: application/json
   "value": "https://neruxvace.net/evidence/screenshot-1.png"
 }
 
-### Add video evidence to moderation case
+###
 
-POST {{baseUrl}}/cases/3/evidence
+### Add video evidence
+# @name addVideoEvidence
+
+POST {{baseUrl}}/cases/{{caseId}}/evidence
 Authorization: Bearer {{actorToken}}
 Content-Type: application/json
 
 {
   "type": "VIDEO",
-  "value": "https://neruxvace.net/evidence/screenshot-1.mp4"
+  "value": "https://neruxvace.net/evidence/video-1.mp4"
 }
 
-### Add chatlog evidence to moderation case
+###
 
-POST {{baseUrl}}/cases/3/evidence
+### Add chat log evidence
+# @name addChatLogEvidence
+
+POST {{baseUrl}}/cases/{{caseId}}/evidence
 Authorization: Bearer {{actorToken}}
 Content-Type: application/json
 
 {
   "type": "CHAT_LOG",
-  "value": "https://chatlog.neruxvace.net/replay-abc-123/Test123"
+  "value": "https://chatlog.neruxvace.net/{{testReplayId}}/{{testPlayerName}}"
 }
 
-### Add empty evidence
+###
 
-POST {{baseUrl}}/cases/3/evidence
+### Get evidence for investigation case
+# @name getCaseEvidence
+
+GET {{baseUrl}}/cases/{{caseId}}/evidence
+Authorization: Bearer {{$auth.token("server")}}
+
+###
+
+### Create case for close flow
+# @name createCloseCase
+
+POST {{baseUrl}}/cases
 Authorization: Bearer {{actorToken}}
 Content-Type: application/json
 
 {
-  "type": "CHAT_LOG",
-  "value": "   "
+  "targetUuid": "{{testTargetUuid}}",
+  "title": "HTTP close flow case"
 }
 
-### Get evidence for moderation case
+> {%
+    client.global.set("closeCaseId", response.body.id);
+%}
 
-GET {{baseUrl}}/cases/3/evidence
-Authorization: Bearer {{$auth.token("server")}}
+###
 
-### Get evidence for unknown moderation case
+### Close moderation case
+# @name closeCase
 
-GET {{baseUrl}}/cases/999999/evidence
-Authorization: Bearer {{$auth.token("server")}}
+POST {{baseUrl}}/cases/{{closeCaseId}}/close
+Authorization: Bearer {{actorToken}}
+
+###
+
+### Create case for dismiss flow
+# @name createDismissCase
+
+POST {{baseUrl}}/cases
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "targetUuid": "{{testTargetUuid}}",
+  "title": "HTTP dismiss flow case"
+}
+
+> {%
+    client.global.set("dismissCaseId", response.body.id);
+%}
+
+###
+
+### Dismiss moderation case
+# @name dismissCase
+
+POST {{baseUrl}}/cases/{{dismissCaseId}}/dismiss
+Authorization: Bearer {{actorToken}}

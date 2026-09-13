@@ -7,6 +7,8 @@ import net.neruxvace.naughtylist.backend.jooq.tables.references.MODERATION_CASE
 import net.neruxvace.naughtylist.backend.jooq.tables.references.PLAYER
 import net.neruxvace.naughtylist.backend.jooq.tables.references.REASON
 import net.neruxvace.naughtylist.backend.jooq.tables.references.REPORT
+import net.neruxvace.naughtylist.backend.moderation.ModerationCaseService
+import net.neruxvace.naughtylist.backend.moderation.request.CreateModerationCaseRequest
 import net.neruxvace.naughtylist.backend.report.request.CreateReportRequest
 import net.neruxvace.naughtylist.backend.report.request.UpdateReportCaseRequest
 import org.jooq.Condition
@@ -14,11 +16,15 @@ import org.jooq.DSLContext
 import org.jooq.impl.DSL
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.server.ResponseStatusException
 import java.util.*
 
 @Service
-class ReportService(private val context: DSLContext) {
+class ReportService(
+    private val context: DSLContext,
+    private val moderationCaseService: ModerationCaseService
+) {
 
     fun findAll(status: ReportStatus?, targetUuid: UUID?, serverName: String?): List<ReportResponse> {
         var condition: Condition = DSL.trueCondition()
@@ -73,6 +79,30 @@ class ReportService(private val context: DSLContext) {
         return map(updated)
     }
 
+    @Transactional
+    fun accept(id: Long, actorUuid: UUID): ReportResponse? {
+        val report = findReportForUpdate(id) ?: return null
+
+        if (report.status != ReportStatus.OPEN) {
+            throw ResponseStatusException(HttpStatus.CONFLICT, "Report is not open")
+        }
+
+        val caseId = report.caseId?.let { caseId ->
+            requireOpenCase(caseId)
+            caseId
+        } ?: resolveCaseForAcceptance(report.targetUuid, actorUuid)
+
+        val updated = context
+            .update(REPORT)
+            .set(REPORT.STATUS, ReportStatus.ACCEPTED)
+            .set(REPORT.CASE_ID, caseId)
+            .where(REPORT.ID.eq(id))
+            .returning()
+            .fetchOne() ?: error("Failed to accept report")
+
+        return map(updated)
+    }
+
     fun updateCase(id: Long, request: UpdateReportCaseRequest): ReportResponse? {
         val report = findReport(id) ?: return null
 
@@ -116,6 +146,50 @@ class ReportService(private val context: DSLContext) {
             caseId = record.caseId,
             createdAt = requireNotNull(record.createdAt)
         )
+    }
+
+    private fun findReportForUpdate(id: Long): ReportRecord? {
+        return context
+            .selectFrom(REPORT)
+            .where(REPORT.ID.eq(id))
+            .forUpdate()
+            .fetchOne()
+    }
+
+    private fun requireOpenCase(id: Long) {
+        val case = context
+            .selectFrom(MODERATION_CASE)
+            .where(MODERATION_CASE.ID.eq(id))
+            .forUpdate()
+            .fetchOne() ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Moderation case not found")
+
+        if (case.status != CaseStatus.OPEN) throw ResponseStatusException(HttpStatus.CONFLICT, "Moderation case is not open")
+    }
+
+    private fun resolveCaseForAcceptance(targetUuid: UUID, actorUuid: UUID): Long {
+        lockPlayer(targetUuid)
+
+        val openCases = context
+            .selectFrom(MODERATION_CASE)
+            .where(MODERATION_CASE.TARGET_UUID.eq(targetUuid))
+            .and(MODERATION_CASE.STATUS.eq(CaseStatus.OPEN))
+            .limit(2)
+            .fetch()
+
+        return when (openCases.size) {
+            0 -> moderationCaseService.create(CreateModerationCaseRequest(targetUuid), actorUuid).id
+            1 -> requireNotNull(openCases.single().id)
+            else -> throw ResponseStatusException(HttpStatus.CONFLICT, "Multiple open moderation cases exist; assign the report to a case before accepting it")
+        }
+    }
+
+    private fun lockPlayer(uuid: UUID) {
+        context
+            .select(PLAYER.UUID)
+            .from(PLAYER)
+            .where(PLAYER.UUID.eq(uuid))
+            .forUpdate()
+            .fetchOne() ?: error("Report target player does not exist")
     }
 
     private fun findReport(id: Long): ReportRecord? {

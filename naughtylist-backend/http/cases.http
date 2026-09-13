@@ -253,3 +253,49 @@ Content-Type: application/json
 
 POST {{baseUrl}}/cases/{{dismissCaseId}}/dismiss
 Authorization: Bearer {{actorToken}}
+
+###
+
+### Create case for assigned acceptance
+# @name createAssignedAcceptCase
+
+POST {{baseUrl}}/cases
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "targetUuid": "{{acceptAssignedTargetUuid}}",
+  "title": "Assigned acceptance case"
+}
+
+> {%
+    client.global.set("caseId", response.body.id);
+%}
+
+###
+
+### Create first case for acceptance conflict
+# @name createFirstAcceptConflictCase
+
+POST {{baseUrl}}/cases
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "targetUuid": "{{acceptConflictTargetUuid}}",
+  "title": "Acceptance conflict case one"
+}
+
+###
+
+### Create second case for acceptance conflict
+# @name createSecondAcceptConflictCase
+
+POST {{baseUrl}}/cases
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "targetUuid": "{{acceptConflictTargetUuid}}",
+  "title": "Acceptance conflict case two"
+}

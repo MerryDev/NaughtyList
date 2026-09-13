@@ -1,0 +1,35 @@
+import ../players.http
+import ../auth.http
+import ../reasons.http
+import ../cases.http
+import ../reports.http
+
+run #syncTestPlayer
+
+###
+
+run #syncAcceptAssignedTarget
+
+###
+
+run #createActorToken
+
+###
+
+run #createReason
+
+###
+
+run #createAssignedAcceptCase
+
+###
+
+run #createAssignedAcceptReport
+
+###
+
+run #assignReportToCase
+
+###
+
+run #acceptReport

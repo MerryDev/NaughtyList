@@ -1,0 +1,8 @@
+import ../players.http
+import ../auth.http
+
+run #syncTestPlayer
+###
+run #syncTargetPlayer
+###
+run #createActorToken

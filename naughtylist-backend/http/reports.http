@@ -144,3 +144,90 @@ Content-Type: application/json
 
 POST {{baseUrl}}/reports/{{closeReportId}}/close
 Authorization: Bearer {{actorToken}}
+
+###
+
+### Create report for assigned acceptance
+# @name createAssignedAcceptReport
+
+POST {{baseUrl}}/reports
+Authorization: Bearer {{$auth.token("server")}}
+Content-Type: application/json
+
+{
+  "reporterUuid": "{{testPlayerUuid}}",
+  "targetUuid": "{{acceptAssignedTargetUuid}}",
+  "reasonId": {{reasonId}}
+}
+
+> {%
+    client.global.set("reportId", response.body.id);
+%}
+
+###
+
+### Create report for automatic acceptance
+# @name createAutoAcceptReport
+
+POST {{baseUrl}}/reports
+Authorization: Bearer {{$auth.token("server")}}
+Content-Type: application/json
+
+{
+  "reporterUuid": "{{testPlayerUuid}}",
+  "targetUuid": "{{acceptAutoTargetUuid}}",
+  "reasonId": {{reasonId}}
+}
+
+> {%
+    client.global.set("reportId", response.body.id);
+%}
+
+###
+
+### Create report for acceptance conflict
+# @name createAcceptConflictReport
+
+POST {{baseUrl}}/reports
+Authorization: Bearer {{$auth.token("server")}}
+Content-Type: application/json
+
+{
+  "reporterUuid": "{{testPlayerUuid}}",
+  "targetUuid": "{{acceptConflictTargetUuid}}",
+  "reasonId": {{reasonId}}
+}
+
+> {%
+    client.global.set("reportId", response.body.id);
+%}
+
+###
+
+### Accept report
+# @name acceptReport
+
+POST {{baseUrl}}/reports/{{reportId}}/accept
+Authorization: Bearer {{actorToken}}
+
+> {%
+    client.test("Report is accepted", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+        client.assert(response.body.status === "ACCEPTED", "Expected ACCEPTED status");
+        client.assert(response.body.caseId != null, "Expected report to have a case");
+    });
+%}
+
+###
+
+### Accept report with ambiguous cases
+# @name acceptReportExpectingConflict
+
+POST {{baseUrl}}/reports/{{reportId}}/accept
+Authorization: Bearer {{actorToken}}
+
+> {%
+    client.test("Multiple open cases return 409", function () {
+        client.assert(response.status === 409, "Expected HTTP 409");
+    });
+%}

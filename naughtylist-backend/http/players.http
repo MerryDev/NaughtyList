@@ -79,3 +79,42 @@ Content-Type: application/json
 {
   "discordId": null
 }
+
+###
+
+### Sync assigned acceptance target
+# @name syncAcceptAssignedTarget
+
+PUT {{baseUrl}}/players/{{acceptAssignedTargetUuid}}
+Authorization: Bearer {{$auth.token("server")}}
+Content-Type: application/json
+
+{
+  "name": "AcceptAssigned"
+}
+
+###
+
+### Sync automatic acceptance target
+# @name syncAcceptAutoTarget
+
+PUT {{baseUrl}}/players/{{acceptAutoTargetUuid}}
+Authorization: Bearer {{$auth.token("server")}}
+Content-Type: application/json
+
+{
+  "name": "AcceptAuto"
+}
+
+###
+
+### Sync acceptance conflict target
+# @name syncAcceptConflictTarget
+
+PUT {{baseUrl}}/players/{{acceptConflictTargetUuid}}
+Authorization: Bearer {{$auth.token("server")}}
+Content-Type: application/json
+
+{
+  "name": "AcceptConflict"
+}

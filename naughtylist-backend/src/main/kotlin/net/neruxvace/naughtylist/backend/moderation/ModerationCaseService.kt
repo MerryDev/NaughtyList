@@ -13,6 +13,13 @@ import java.util.UUID
 @Service
 class ModerationCaseService(private val context: DSLContext) {
 
+    fun findById(id: Long): ModerationCaseResponse? {
+        return context
+            .selectFrom(MODERATION_CASE)
+            .where(MODERATION_CASE.ID.eq(id))
+            .fetchOne()?.let(::map)
+    }
+
     fun create(request: CreateModerationCaseRequest, actorUuid: UUID): ModerationCaseResponse {
         requirePlayer(request.targetUuid, "Target player not found")
         request.assignedTo?.let { requirePlayer(it, "Assigned player not found") }

@@ -20,3 +20,13 @@ Content-Type: application/json
 {
   "targetUuid": "{{testTargetUuid}}"
 }
+
+### Get moderation case by ID
+
+GET {{baseUrl}}/cases/1
+Authorization: Bearer {{$auth.token("server")}}
+
+### Get unknown moderation case
+
+GET {{baseUrl}}/cases/999999
+Authorization: Bearer {{$auth.token("server")}}

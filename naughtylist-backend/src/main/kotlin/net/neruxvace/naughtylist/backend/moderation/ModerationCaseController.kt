@@ -54,4 +54,16 @@ class ModerationCaseController(
         return service.update(id, request) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Moderation case not found")
     }
 
+    @PostMapping("/{id}/close")
+    @PreAuthorize("hasAuthority('SCOPE_case:write')")
+    fun closeCase(@PathVariable id: Long) {
+        service.close(id) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Moderation case not found")
+    }
+
+    @PostMapping("/{id}/dismiss")
+    @PreAuthorize("hasAuthority('SCOPE_case:write')")
+    fun dismissCase(@PathVariable id: Long) {
+        service.dismiss(id) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Moderation case not found")
+    }
+
 }

@@ -82,3 +82,13 @@ Content-Type: application/json
 {
   "title": "Updated investigation"
 }
+
+### Close moderation case
+
+POST {{baseUrl}}/cases/1/close
+Authorization: Bearer {{actorToken}}
+
+### Dismiss moderation case
+
+POST {{baseUrl}}/cases/2/dismiss
+Authorization: Bearer {{actorToken}}

@@ -12,6 +12,7 @@ import org.jooq.impl.DSL
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
+import java.time.LocalDateTime
 import java.util.UUID
 
 @Service
@@ -81,6 +82,34 @@ class ModerationCaseService(private val context: DSLContext) {
         return findById(id) ?: error("Moderation case disappeared after update")
     }
 
+    fun close(id: Long): ModerationCaseResponse? {
+        return updateStatus(id, CaseStatus.CLOSED)
+    }
+
+    fun dismiss(id: Long): ModerationCaseResponse? {
+        return updateStatus(id, CaseStatus.DISMISSED)
+    }
+
+    private fun updateStatus(id: Long, status: CaseStatus): ModerationCaseResponse? {
+        val case = context
+            .selectFrom(MODERATION_CASE)
+            .where(MODERATION_CASE.ID.eq(id))
+            .fetchOne() ?: return null
+
+        if (case.status != CaseStatus.OPEN) {
+            throw ResponseStatusException(HttpStatus.CONFLICT, "Case is not open")
+        }
+
+        val updated = context
+            .update(MODERATION_CASE)
+            .set(MODERATION_CASE.STATUS, status)
+            .set(MODERATION_CASE.CLOSED_AT, LocalDateTime.now())
+            .where(MODERATION_CASE.ID.eq(id))
+            .returning()
+            .fetchOne() ?: error("Failed to update moderation case status")
+
+        return map(updated)
+    }
 
     private fun requirePlayer(uuid: UUID, message: String) {
         val exists = context.fetchExists(

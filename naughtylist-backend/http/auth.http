@@ -23,3 +23,30 @@ Content-Type: application/json
 > {%
     client.global.set("actorToken", response.body.accessToken);
 %}
+
+###
+
+### Create actor token without permissions
+# @name createActorTokenWithoutPermissions
+
+POST {{baseUrl}}/auth/actor-token
+Authorization: Bearer {{$auth.token("server")}}
+Content-Type: application/json
+
+{
+  "playerUuid": "{{testPlayerUuid}}",
+  "permissions": []
+}
+
+> {%
+    client.test("Actor token without permissions is created", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+        client.assert(
+            typeof response.body.accessToken === "string",
+            "Expected access token"
+        );
+        client.assert(response.body.accessToken.length > 0, "Expected non-empty access token");
+    });
+
+    client.global.set("emptyActorToken", response.body.accessToken);
+%}

@@ -1,0 +1,358 @@
+### Create investigation case
+# @name createInvestigationCase
+
+POST {{baseUrl}}/cases
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "targetUuid": "{{testTargetUuid}}",
+  "title": "HTTP client investigation",
+  "summary": "Case used by the HTTP client integration flow",
+  "assignedTo": "{{testPlayerUuid}}"
+}
+
+> {%
+    client.global.set("caseId", response.body.id);
+%}
+
+###
+
+### Create minimal moderation case
+# @name createMinimalCase
+
+POST {{baseUrl}}/cases
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "targetUuid": "{{testTargetUuid}}"
+}
+
+> {%
+    client.global.set("minimalCaseId", response.body.id);
+%}
+
+###
+
+### Get investigation case
+# @name getInvestigationCase
+
+GET {{baseUrl}}/cases/{{caseId}}
+Authorization: Bearer {{$auth.token("server")}}
+
+###
+
+### Get all moderation cases
+# @name getCases
+
+GET {{baseUrl}}/cases
+Authorization: Bearer {{$auth.token("server")}}
+
+###
+
+### Get open moderation cases
+# @name getOpenCases
+
+GET {{baseUrl}}/cases?status=OPEN
+Authorization: Bearer {{$auth.token("server")}}
+
+###
+
+### Get moderation cases for target
+# @name getCasesForTarget
+
+GET {{baseUrl}}/cases?targetUuid={{testTargetUuid}}
+Authorization: Bearer {{$auth.token("server")}}
+
+###
+
+### Get moderation cases assigned to moderator
+# @name getAssignedCases
+
+GET {{baseUrl}}/cases?assignedTo={{testPlayerUuid}}
+Authorization: Bearer {{$auth.token("server")}}
+
+###
+
+### Get open moderation cases for target
+# @name getOpenCasesForTarget
+
+GET {{baseUrl}}/cases?status=OPEN&targetUuid={{testTargetUuid}}
+Authorization: Bearer {{$auth.token("server")}}
+
+###
+
+### Get open moderation cases assigned to moderator
+# @name getOpenAssignedCases
+
+GET {{baseUrl}}/cases?status=OPEN&assignedTo={{testPlayerUuid}}
+Authorization: Bearer {{$auth.token("server")}}
+
+###
+
+### Update investigation case
+# @name updateInvestigationCase
+
+PATCH {{baseUrl}}/cases/{{caseId}}
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "title": "Updated HTTP client investigation",
+  "summary": "Additional suspicious behaviour was found",
+  "assignedTo": "{{testPlayerUuid}}"
+}
+
+###
+
+### Update investigation case title
+# @name updateInvestigationCaseTitle
+
+PATCH {{baseUrl}}/cases/{{caseId}}
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "title": "Updated investigation"
+}
+
+###
+
+### Add note to investigation case
+# @name addCaseNote
+
+POST {{baseUrl}}/cases/{{caseId}}/notes
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "content": "Replay reviewed. Suspicious behaviour requires further investigation."
+}
+
+###
+
+### Get notes for investigation case
+# @name getCaseNotes
+
+GET {{baseUrl}}/cases/{{caseId}}/notes
+Authorization: Bearer {{$auth.token("server")}}
+
+###
+
+### Add replay evidence
+# @name addReplayEvidence
+
+POST {{baseUrl}}/cases/{{caseId}}/evidence
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "type": "REPLAY",
+  "value": "{{testReplayId}}"
+}
+
+###
+
+### Add screenshot evidence
+# @name addScreenshotEvidence
+
+POST {{baseUrl}}/cases/{{caseId}}/evidence
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "type": "SCREENSHOT",
+  "value": "https://neruxvace.net/evidence/screenshot-1.png"
+}
+
+###
+
+### Add video evidence
+# @name addVideoEvidence
+
+POST {{baseUrl}}/cases/{{caseId}}/evidence
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "type": "VIDEO",
+  "value": "https://neruxvace.net/evidence/video-1.mp4"
+}
+
+###
+
+### Add chat log evidence
+# @name addChatLogEvidence
+
+POST {{baseUrl}}/cases/{{caseId}}/evidence
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "type": "CHAT_LOG",
+  "value": "https://chatlog.neruxvace.net/{{testReplayId}}/{{testPlayerName}}"
+}
+
+###
+
+### Get evidence for investigation case
+# @name getCaseEvidence
+
+GET {{baseUrl}}/cases/{{caseId}}/evidence
+Authorization: Bearer {{$auth.token("server")}}
+
+###
+
+### Create case for close flow
+# @name createCloseCase
+
+POST {{baseUrl}}/cases
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "targetUuid": "{{testTargetUuid}}",
+  "title": "HTTP close flow case"
+}
+
+> {%
+    client.global.set("closeCaseId", response.body.id);
+%}
+
+###
+
+### Close moderation case
+# @name closeCase
+
+POST {{baseUrl}}/cases/{{closeCaseId}}/close
+Authorization: Bearer {{actorToken}}
+
+###
+
+### Create case for dismiss flow
+# @name createDismissCase
+
+POST {{baseUrl}}/cases
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "targetUuid": "{{testTargetUuid}}",
+  "title": "HTTP dismiss flow case"
+}
+
+> {%
+    client.global.set("dismissCaseId", response.body.id);
+%}
+
+###
+
+### Dismiss moderation case
+# @name dismissCase
+
+POST {{baseUrl}}/cases/{{dismissCaseId}}/dismiss
+Authorization: Bearer {{actorToken}}
+
+###
+
+### Create case for assigned acceptance
+# @name createAssignedAcceptCase
+
+POST {{baseUrl}}/cases
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "targetUuid": "{{acceptAssignedTargetUuid}}",
+  "title": "Assigned acceptance case"
+}
+
+> {%
+    client.global.set("caseId", response.body.id);
+%}
+
+###
+
+### Create first case for acceptance conflict
+# @name createFirstAcceptConflictCase
+
+POST {{baseUrl}}/cases
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "targetUuid": "{{acceptConflictTargetUuid}}",
+  "title": "Acceptance conflict case one"
+}
+
+###
+
+### Create second case for acceptance conflict
+# @name createSecondAcceptConflictCase
+
+POST {{baseUrl}}/cases
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "targetUuid": "{{acceptConflictTargetUuid}}",
+  "title": "Acceptance conflict case two"
+}
+
+###
+
+### Close investigation case with open report
+# @name closeInvestigationCaseExpectingConflict
+
+POST {{baseUrl}}/cases/{{caseId}}/close
+Authorization: Bearer {{actorToken}}
+
+> {%
+    client.test("Case with open report cannot be closed", function () {
+        client.assert(response.status === 409, "Expected HTTP 409");
+    });
+%}
+
+###
+
+### Dismiss investigation case with open report
+# @name dismissInvestigationCaseExpectingConflict
+
+POST {{baseUrl}}/cases/{{caseId}}/dismiss
+Authorization: Bearer {{actorToken}}
+
+> {%
+    client.test("Case with open report cannot be dismissed", function () {
+        client.assert(response.status === 409, "Expected HTTP 409");
+    });
+%}
+
+###
+
+### Close investigation case
+# @name closeInvestigationCase
+
+POST {{baseUrl}}/cases/{{caseId}}/close
+Authorization: Bearer {{actorToken}}
+
+> {%
+    client.test("Case close returns 200", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+    });
+%}
+
+###
+
+### Get closed investigation case
+# @name getClosedInvestigationCase
+
+GET {{baseUrl}}/cases/{{caseId}}
+Authorization: Bearer {{$auth.token("server")}}
+
+> {%
+    client.test("Case is closed", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+        client.assert(response.body.status === "CLOSED", "Expected CLOSED status");
+    });
+%}

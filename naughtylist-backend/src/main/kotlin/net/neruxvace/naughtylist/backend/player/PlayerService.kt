@@ -2,6 +2,7 @@ package net.neruxvace.naughtylist.backend.player
 
 import net.neruxvace.naughtylist.backend.jooq.tables.references.PLAYER
 import net.neruxvace.naughtylist.backend.jooq.tables.references.PLAYER_NAME_HISTORY
+import net.neruxvace.naughtylist.backend.persistence.required
 import net.neruxvace.naughtylist.backend.player.response.PlayerNameResponse
 import net.neruxvace.naughtylist.backend.player.response.PlayerResponse
 import org.jooq.DSLContext
@@ -31,7 +32,7 @@ class PlayerService(private val context: DSLContext) {
             uuid = player.uuid,
             name = name,
             discordId = player.discordId,
-            firstJoinedAt = requireNotNull(player.firstJoinedAt),
+            firstJoinedAt = player.firstJoinedAt.required(),
             lastSeenAt = player.lastSeenAt
         )
     }
@@ -58,7 +59,7 @@ class PlayerService(private val context: DSLContext) {
             .map {
                 PlayerNameResponse(
                     name = it.name,
-                    validFrom = requireNotNull(it.validFrom),
+                    validFrom = it.validFrom.required(),
                     validUntil = it.validUntil
                 )
             }

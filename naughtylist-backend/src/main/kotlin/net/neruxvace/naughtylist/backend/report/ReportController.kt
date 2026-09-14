@@ -1,0 +1,68 @@
+package net.neruxvace.naughtylist.backend.report
+
+import jakarta.validation.Valid
+import net.neruxvace.naughtylist.backend.auth.CurrentActor
+import net.neruxvace.naughtylist.backend.auth.CurrentClient
+import net.neruxvace.naughtylist.backend.jooq.enums.ReportStatus
+import net.neruxvace.naughtylist.backend.report.request.CreateReportRequest
+import net.neruxvace.naughtylist.backend.report.request.UpdateReportCaseRequest
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.web.bind.annotation.*
+import org.springframework.web.server.ResponseStatusException
+import java.util.*
+
+@RestController
+@RequestMapping("/api/v1/reports")
+class ReportController(
+    private val service: ReportService,
+    private val currentClient: CurrentClient,
+    private val currentActor: CurrentActor
+) {
+
+    @GetMapping
+    fun getReports(
+        @RequestParam(required = false) status: ReportStatus?,
+        @RequestParam(required = false) targetUuid: UUID?,
+        @RequestParam(required = false) serverName: String?,
+        @RequestParam(required = false) caseId: Long?
+    ): List<ReportResponse> {
+        return service.findAll(status, targetUuid, serverName, caseId)
+    }
+
+    @GetMapping("/{id}")
+    fun getReport(@PathVariable id: Long): ResponseEntity<ReportResponse> {
+        val report = service.findById(id) ?: return ResponseEntity.notFound().build()
+        return ResponseEntity.ok(report)
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    fun createReport(@Valid @RequestBody request: CreateReportRequest): ReportResponse {
+        val client = currentClient.requireServer()
+        return service.create(request, client.clientId)
+    }
+
+    @PostMapping("/{id}/close")
+    @PreAuthorize("hasAuthority('SCOPE_report:review')")
+    fun closeReport(@PathVariable id: Long): ReportResponse? {
+        return service.close(id) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Report not found")
+    }
+
+    @PostMapping("/{id}/accept")
+    @PreAuthorize("hasAuthority('SCOPE_report:review')")
+    fun acceptReport(@PathVariable id: Long): ReportResponse? {
+        val actor = currentActor.requireActor()
+        return service.accept(id, actor.playerUuid) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Report not found")
+    }
+
+    @PutMapping("/{id}/case")
+    @PreAuthorize("hasAuthority('SCOPE_report:review')")
+    fun updateReportCase(
+        @PathVariable id: Long,
+        @Valid @RequestBody request: UpdateReportCaseRequest
+    ): ReportResponse {
+        return service.updateCase(id, request) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Report not found")
+    }
+}

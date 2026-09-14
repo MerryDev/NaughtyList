@@ -1,0 +1,65 @@
+package net.neruxvace.naughtylist.backend.moderation.evidence
+
+import net.neruxvace.naughtylist.backend.jooq.enums.CaseStatus
+import net.neruxvace.naughtylist.backend.jooq.tables.records.CaseEvidenceRecord
+import net.neruxvace.naughtylist.backend.jooq.tables.references.CASE_EVIDENCE
+import net.neruxvace.naughtylist.backend.jooq.tables.references.MODERATION_CASE
+import net.neruxvace.naughtylist.backend.persistence.required
+import org.jooq.DSLContext
+import org.springframework.http.HttpStatus
+import org.springframework.stereotype.Service
+import org.springframework.web.server.ResponseStatusException
+import java.util.*
+
+@Service
+class CaseEvidenceService(private val context: DSLContext) {
+
+    fun findAllByCaseId(caseId: Long): List<CaseEvidenceResponse> {
+        val exists = context.fetchExists(
+            context
+                .selectOne()
+                .from(MODERATION_CASE)
+                .where(MODERATION_CASE.ID.eq(caseId))
+        )
+
+        if (!exists) throw ResponseStatusException(HttpStatus.NOT_FOUND, "Moderation case not found")
+
+        return context
+            .selectFrom(CASE_EVIDENCE)
+            .where(CASE_EVIDENCE.CASE_ID.eq(caseId))
+            .orderBy(CASE_EVIDENCE.CREATED_AT.asc())
+            .fetch().map(::map)
+    }
+
+    fun create(caseId: Long, request: CreateCaseEvidenceRequest, actorUuid: UUID): CaseEvidenceResponse {
+        val case = context
+            .selectFrom(MODERATION_CASE)
+            .where(MODERATION_CASE.ID.eq(caseId))
+            .fetchOne() ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Moderation case not found")
+
+        if (case.status != CaseStatus.OPEN) {
+            throw ResponseStatusException(HttpStatus.CONFLICT, "Moderation case is not open")
+        }
+
+        val record = context
+            .insertInto(CASE_EVIDENCE)
+            .set(CASE_EVIDENCE.CASE_ID, caseId)
+            .set(CASE_EVIDENCE.ADDED_BY, actorUuid)
+            .set(CASE_EVIDENCE.TYPE, request.type)
+            .set(CASE_EVIDENCE.VALUE, request.value.trim())
+            .returning()
+            .fetchOne() ?: error("Failed to create case evidence")
+
+        return map(record)
+    }
+
+    private fun map(record: CaseEvidenceRecord): CaseEvidenceResponse =
+        CaseEvidenceResponse(
+            id = record.id.required(),
+            caseId = record.caseId,
+            addedBy = record.addedBy,
+            type = record.type,
+            value = record.value,
+            createdAt = record.createdAt.required()
+        )
+}

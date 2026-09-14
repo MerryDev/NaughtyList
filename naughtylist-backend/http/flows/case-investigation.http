@@ -1,0 +1,23 @@
+import ../players.http
+import ../auth.http
+import ../cases.http
+
+run #syncTestPlayer
+###
+run #syncTargetPlayer
+###
+run #createActorToken
+###
+run #createInvestigationCase
+###
+run #updateInvestigationCase
+###
+run #addCaseNote
+###
+run #addReplayEvidence
+###
+run #getCaseNotes
+###
+run #getCaseEvidence
+###
+run #getInvestigationCase

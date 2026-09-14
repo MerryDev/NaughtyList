@@ -1,40 +1,57 @@
-### Get all reasons
-
-GET {{baseUrl}}/reasons
-Authorization: Bearer {{$auth.token("server")}}
-
-### Get reason by ID
-
-GET {{baseUrl}}/reasons/1
-Authorization: Bearer {{$auth.token("server")}}
-
 ### Create reason
+# @name createReason
 
 POST {{baseUrl}}/reasons
 Authorization: Bearer {{actorToken}}
 Content-Type: application/json
 
 {
-  "key": "CHEATING",
-  "name": "Cheating",
-  "description": "Nutzung unerlaubter Clientmodifikationen"
+  "key": "HTTP_TEST_{{$random.uuid}}",
+  "name": "HTTP Test Reason",
+  "description": "Reason created by HTTP client integration flow"
 }
 
-### Update reason
+> {%
+    client.global.set("reasonId", response.body.id);
+%}
 
-PATCH {{baseUrl}}/reasons/1
+###
+
+### Get created reason
+# @name getReason
+
+GET {{baseUrl}}/reasons/{{reasonId}}
+Authorization: Bearer {{$auth.token("server")}}
+
+###
+
+### Get all reasons
+# @name getReasons
+
+GET {{baseUrl}}/reasons
+Authorization: Bearer {{$auth.token("server")}}
+
+###
+
+### Update created reason
+# @name updateReason
+
+PATCH {{baseUrl}}/reasons/{{reasonId}}
 Authorization: Bearer {{actorToken}}
 Content-Type: application/json
 
 {
-  "name": "Cheating",
-  "description": "Nutzung unerlaubter Clientmodifikationen",
+  "name": "Updated HTTP Test Reason",
+  "description": "Updated by HTTP client integration flow",
   "enabled": true
 }
 
-### Disable reason
+###
 
-PATCH {{baseUrl}}/reasons/1
+### Disable created reason
+# @name disableReason
+
+PATCH {{baseUrl}}/reasons/{{reasonId}}
 Authorization: Bearer {{actorToken}}
 Content-Type: application/json
 
@@ -42,9 +59,12 @@ Content-Type: application/json
   "enabled": false
 }
 
-### Enable reason
+###
 
-PATCH {{baseUrl}}/reasons/1
+### Enable created reason
+# @name enableReason
+
+PATCH {{baseUrl}}/reasons/{{reasonId}}
 Authorization: Bearer {{actorToken}}
 Content-Type: application/json
 

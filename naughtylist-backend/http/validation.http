@@ -1,0 +1,92 @@
+### Get unknown moderation case
+# @name getUnknownCase
+
+GET {{baseUrl}}/cases/{{missingId}}
+Authorization: Bearer {{$auth.token("server")}}
+
+> {%
+    client.test("Unknown case returns 404", function () {
+        client.assert(response.status === 404, "Expected HTTP 404");
+    });
+%}
+
+###
+
+### Get notes for unknown moderation case
+# @name getUnknownCaseNotes
+
+GET {{baseUrl}}/cases/{{missingId}}/notes
+Authorization: Bearer {{$auth.token("server")}}
+
+> {%
+    client.test("Unknown case notes return 404", function () {
+        client.assert(response.status === 404, "Expected HTTP 404");
+    });
+%}
+
+###
+
+### Get evidence for unknown moderation case
+# @name getUnknownCaseEvidence
+
+GET {{baseUrl}}/cases/{{missingId}}/evidence
+Authorization: Bearer {{$auth.token("server")}}
+
+> {%
+    client.test("Unknown case evidence returns 404", function () {
+        client.assert(response.status === 404, "Expected HTTP 404");
+    });
+%}
+
+###
+
+### Add empty case note
+# @name addEmptyCaseNote
+
+POST {{baseUrl}}/cases/{{caseId}}/notes
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "content": "   "
+}
+
+> {%
+    client.test("Empty case note returns 400", function () {
+        client.assert(response.status === 400, "Expected HTTP 400");
+    });
+%}
+
+###
+
+### Add empty case evidence
+# @name addEmptyCaseEvidence
+
+POST {{baseUrl}}/cases/{{caseId}}/evidence
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "type": "CHAT_LOG",
+  "value": "   "
+}
+
+> {%
+    client.test("Empty case evidence returns 400", function () {
+        client.assert(response.status === 400, "Expected HTTP 400");
+    });
+%}
+
+###
+
+### Get unknown report
+# @name getUnknownReport
+
+GET {{baseUrl}}/reports/{{missingId}}
+Authorization: Bearer {{$auth.token("server")}}
+
+> {%
+    client.test("Unknown report returns 404", function () {
+        client.assert(response.status === 404, "Expected HTTP 404");
+    });
+%}

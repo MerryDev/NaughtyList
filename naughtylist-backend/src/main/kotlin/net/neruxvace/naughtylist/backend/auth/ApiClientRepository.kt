@@ -1,8 +1,9 @@
 package net.neruxvace.naughtylist.backend.auth
 
+import net.neruxvace.naughtylist.backend.jooq.tables.references.API_CLIENT
+import net.neruxvace.naughtylist.backend.persistence.required
 import org.jooq.DSLContext
 import org.springframework.stereotype.Repository
-import net.neruxvace.naughtylist.backend.jooq.tables.references.API_CLIENT
 
 @Repository
 class ApiClientRepository(private val context: DSLContext) {
@@ -16,7 +17,7 @@ class ApiClientRepository(private val context: DSLContext) {
         return ApiClient(
             clientId = record.clientId,
             secretHash = record.secretHash,
-            enabled = requireNotNull(record.enabled) { "api_client.enabled is unexpectedly null" }
+            enabled = record.enabled.required()
         )
     }
 

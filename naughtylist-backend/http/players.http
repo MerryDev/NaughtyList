@@ -1,54 +1,76 @@
 ### Sync test player
+# @name syncTestPlayer
 
 PUT {{baseUrl}}/players/{{testPlayerUuid}}
 Authorization: Bearer {{$auth.token("server")}}
 Content-Type: application/json
 
 {
-  "name": "Test123"
+  "name": "{{testPlayerName}}"
 }
 
+###
+
 ### Sync target player
+# @name syncTargetPlayer
 
 PUT {{baseUrl}}/players/{{testTargetUuid}}
 Authorization: Bearer {{$auth.token("server")}}
 Content-Type: application/json
 
 {
-  "name": "Target123"
+  "name": "{{testTargetName}}"
 }
 
-### Get player by UUID
+###
+
+### Get test player by UUID
+# @name getTestPlayer
 
 GET {{baseUrl}}/players/{{testPlayerUuid}}
 Authorization: Bearer {{$auth.token("server")}}
 
+###
+
 ### Get target player by UUID
+# @name getTargetPlayer
 
 GET {{baseUrl}}/players/{{testTargetUuid}}
 Authorization: Bearer {{$auth.token("server")}}
 
-### Get player by current name
+###
 
-GET {{baseUrl}}/players?name=Test123
+### Find test player by current name
+# @name findTestPlayerByName
+
+GET {{baseUrl}}/players?name={{testPlayerName}}
 Authorization: Bearer {{$auth.token("server")}}
 
-### Get player name history
+###
+
+### Get test player name history
+# @name getTestPlayerNameHistory
 
 GET {{baseUrl}}/players/{{testPlayerUuid}}/names
 Authorization: Bearer {{$auth.token("server")}}
 
+###
+
 ### Set Discord ID
+# @name setDiscordId
 
 PUT {{baseUrl}}/players/{{testPlayerUuid}}/discord
 Authorization: Bearer {{$auth.token("server")}}
 Content-Type: application/json
 
 {
-  "discordId": "123456789012345678"
+  "discordId": "{{testDiscordId}}"
 }
 
+###
+
 ### Remove Discord ID
+# @name removeDiscordId
 
 PUT {{baseUrl}}/players/{{testPlayerUuid}}/discord
 Authorization: Bearer {{$auth.token("server")}}
@@ -56,4 +78,43 @@ Content-Type: application/json
 
 {
   "discordId": null
+}
+
+###
+
+### Sync assigned acceptance target
+# @name syncAcceptAssignedTarget
+
+PUT {{baseUrl}}/players/{{acceptAssignedTargetUuid}}
+Authorization: Bearer {{$auth.token("server")}}
+Content-Type: application/json
+
+{
+  "name": "AcceptAssigned"
+}
+
+###
+
+### Sync automatic acceptance target
+# @name syncAcceptAutoTarget
+
+PUT {{baseUrl}}/players/{{acceptAutoTargetUuid}}
+Authorization: Bearer {{$auth.token("server")}}
+Content-Type: application/json
+
+{
+  "name": "AcceptAuto"
+}
+
+###
+
+### Sync acceptance conflict target
+# @name syncAcceptConflictTarget
+
+PUT {{baseUrl}}/players/{{acceptConflictTargetUuid}}
+Authorization: Bearer {{$auth.token("server")}}
+Content-Type: application/json
+
+{
+  "name": "AcceptConflict"
 }

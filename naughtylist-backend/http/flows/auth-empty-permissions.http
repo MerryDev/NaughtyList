@@ -1,0 +1,17 @@
+import ../players.http
+import ../auth.http
+import ../reasons.http
+
+run #syncTestPlayer
+
+###
+
+run #createActorTokenWithoutPermissions
+
+###
+
+run #getReasonsWithoutPermissions
+
+###
+
+run #createReasonWithoutPermissions

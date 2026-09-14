@@ -71,3 +71,37 @@ Content-Type: application/json
 {
   "enabled": true
 }
+
+###
+
+### Read reasons without permissions
+# @name getReasonsWithoutPermissions
+
+GET {{baseUrl}}/reasons
+Authorization: Bearer {{emptyActorToken}}
+
+> {%
+    client.test("Actor without permissions can use authenticated read endpoint", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+    });
+%}
+
+###
+
+### Create reason without permissions
+# @name createReasonWithoutPermissions
+
+POST {{baseUrl}}/reasons
+Authorization: Bearer {{emptyActorToken}}
+Content-Type: application/json
+
+{
+  "key": "UNAUTHORIZED_{{$random.uuid}}",
+  "name": "Unauthorized reason"
+}
+
+> {%
+    client.test("Actor without permissions cannot create reasons", function () {
+        client.assert(response.status === 403, "Expected HTTP 403");
+    });
+%}

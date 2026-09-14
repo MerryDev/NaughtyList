@@ -7,8 +7,10 @@ import net.neruxvace.naughtylist.backend.player.response.PlayerNameResponse
 import net.neruxvace.naughtylist.backend.player.response.PlayerResponse
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDateTime
 import java.util.*
 
@@ -109,10 +111,14 @@ class PlayerService(private val context: DSLContext) {
     }
 
     private fun insertName(uuid: UUID, name: String, timestamp: LocalDateTime) {
-        context.insertInto(PLAYER_NAME_HISTORY)
+        val inserted = context
+            .insertInto(PLAYER_NAME_HISTORY)
             .set(PLAYER_NAME_HISTORY.PLAYER_UUID, uuid)
             .set(PLAYER_NAME_HISTORY.NAME, name)
             .set(PLAYER_NAME_HISTORY.VALID_FROM, timestamp)
+            .onConflictDoNothing()
             .execute()
+
+        if (inserted == 0) throw ResponseStatusException(HttpStatus.CONFLICT, "Player name is already in use")
     }
 }

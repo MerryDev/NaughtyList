@@ -64,8 +64,9 @@ class ReportService(
         return map(record)
     }
 
+    @Transactional
     fun close(id: Long): ReportResponse? {
-        val report = findReport(id) ?: return null
+        val report = findReportForUpdate(id) ?: return null
 
         if (report.status != ReportStatus.OPEN) {
             throw ResponseStatusException(HttpStatus.CONFLICT, "Report is not open")
@@ -105,8 +106,9 @@ class ReportService(
         return map(updated)
     }
 
+    @Transactional
     fun updateCase(id: Long, request: UpdateReportCaseRequest): ReportResponse? {
-        val report = findReport(id) ?: return null
+        val report = findReportForUpdate(id) ?: return null
 
         if (report.status != ReportStatus.OPEN) {
             throw ResponseStatusException(HttpStatus.CONFLICT, "Report is not open")

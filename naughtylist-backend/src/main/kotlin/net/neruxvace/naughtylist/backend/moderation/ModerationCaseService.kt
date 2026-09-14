@@ -14,9 +14,10 @@ import org.jooq.DSLContext
 import org.jooq.impl.DSL
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 @Service
 class ModerationCaseService(private val context: DSLContext) {
@@ -85,18 +86,19 @@ class ModerationCaseService(private val context: DSLContext) {
         return findById(id) ?: error("Moderation case disappeared after update")
     }
 
-    fun close(id: Long): ModerationCaseResponse? {
-        return updateStatus(id, CaseStatus.CLOSED)
-    }
+    @Transactional
+    fun close(id: Long): ModerationCaseResponse? = updateStatus(id, CaseStatus.CLOSED)
 
-    fun dismiss(id: Long): ModerationCaseResponse? {
-        return updateStatus(id, CaseStatus.DISMISSED)
-    }
+
+    @Transactional
+    fun dismiss(id: Long): ModerationCaseResponse? = updateStatus(id, CaseStatus.DISMISSED)
+
 
     private fun updateStatus(id: Long, status: CaseStatus): ModerationCaseResponse? {
         val case = context
             .selectFrom(MODERATION_CASE)
             .where(MODERATION_CASE.ID.eq(id))
+            .forUpdate()
             .fetchOne() ?: return null
 
         if (case.status != CaseStatus.OPEN) {

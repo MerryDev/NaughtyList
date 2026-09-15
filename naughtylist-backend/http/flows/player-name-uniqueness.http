@@ -1,0 +1,19 @@
+import ../players.http
+
+run #syncTestPlayer
+
+###
+
+run #syncNameConflictPlayer
+
+###
+
+run #syncDuplicateCurrentName
+
+###
+
+run #getNameConflictPlayerAfterConflict
+
+###
+
+run #findOriginalPlayerByCaseInsensitiveName

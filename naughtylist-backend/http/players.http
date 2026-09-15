@@ -118,3 +118,81 @@ Content-Type: application/json
 {
   "name": "AcceptConflict"
 }
+
+###
+
+### Sync name-conflict candidate
+# @name syncNameConflictPlayer
+
+PUT {{baseUrl}}/players/{{nameConflictPlayerUuid}}
+Authorization: Bearer {{$auth.token("server")}}
+Content-Type: application/json
+
+{
+  "name": "{{nameConflictOriginalName}}"
+}
+
+> {%
+    client.test("Name-conflict candidate is synchronized", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+        client.assert(
+            response.body.name === client.variables.environment.get("nameConflictOriginalName"),
+            "Expected original candidate name"
+        );
+    });
+%}
+
+###
+
+### Assign an existing current name to another player
+# @name syncDuplicateCurrentName
+
+PUT {{baseUrl}}/players/{{nameConflictPlayerUuid}}
+Authorization: Bearer {{$auth.token("server")}}
+Content-Type: application/json
+
+{
+  "name": "{{nameConflictDuplicateName}}"
+}
+
+> {%
+    client.test("Duplicate current name returns conflict", function () {
+        client.assert(response.status === 409, "Expected HTTP 409");
+    });
+%}
+
+###
+
+### Verify name rollback after conflict
+# @name getNameConflictPlayerAfterConflict
+
+GET {{baseUrl}}/players/{{nameConflictPlayerUuid}}
+Authorization: Bearer {{$auth.token("server")}}
+
+> {%
+    client.test("Original name remains active after conflict", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+        client.assert(
+            response.body.name === client.variables.environment.get("nameConflictOriginalName"),
+            "Expected original name to remain active"
+        );
+    });
+%}
+
+###
+
+### Resolve case-insensitive current name
+# @name findOriginalPlayerByCaseInsensitiveName
+
+GET {{baseUrl}}/players?name={{nameConflictDuplicateName}}
+Authorization: Bearer {{$auth.token("server")}}
+
+> {%
+    client.test("Case-insensitive lookup resolves the original player", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+        client.assert(
+            response.body.uuid === client.variables.environment.get("testPlayerUuid"),
+            "Expected the original name owner"
+        );
+    });
+%}

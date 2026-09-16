@@ -75,4 +75,8 @@ tasks {
     compileKotlin {
         dependsOn(jooqCodegen)
     }
+
+    withType<Test>().configureEach {
+        useJUnitPlatform()
+    }
 }

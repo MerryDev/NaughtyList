@@ -1,13 +1,12 @@
 package net.neruxvace.naughtylist.backend.reason
 
+import net.neruxvace.naughtylist.backend.exception.ResourceConflictException
 import net.neruxvace.naughtylist.backend.jooq.tables.references.REASON
 import net.neruxvace.naughtylist.backend.persistence.required
 import net.neruxvace.naughtylist.backend.reason.request.CreateReasonRequest
 import net.neruxvace.naughtylist.backend.reason.request.UpdateReasonRequest
 import org.jooq.DSLContext
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
-import org.springframework.web.server.ResponseStatusException
 
 @Service
 class ReasonService(private val context: DSLContext) {
@@ -44,7 +43,7 @@ class ReasonService(private val context: DSLContext) {
     }
 
     fun create(request: CreateReasonRequest): ReasonResponse {
-        if (keyExists(request.key)) throw ResponseStatusException(HttpStatus.CONFLICT, "Reason with key ${request.key} already exists")
+        if (keyExists(request.key)) throw ResourceConflictException("A reason with key ${request.key} already exists")
 
         val record = context
             .insertInto(REASON)

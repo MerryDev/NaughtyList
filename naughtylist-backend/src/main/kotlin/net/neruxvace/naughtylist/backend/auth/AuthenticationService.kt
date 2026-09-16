@@ -1,9 +1,8 @@
 package net.neruxvace.naughtylist.backend.auth
 
-import org.springframework.http.HttpStatus
+import net.neruxvace.naughtylist.backend.exception.InvalidCredentialsException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
-import org.springframework.web.server.ResponseStatusException
 
 @Service
 class AuthenticationService(
@@ -26,7 +25,7 @@ class AuthenticationService(
     }
 
     private fun invalidCredentials(): Nothing {
-        throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials")
+        throw InvalidCredentialsException("Invalid credentials")
     }
 
 }

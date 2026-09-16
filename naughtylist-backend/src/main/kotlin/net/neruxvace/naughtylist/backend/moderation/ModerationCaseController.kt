@@ -1,13 +1,13 @@
 package net.neruxvace.naughtylist.backend.moderation
 
 import net.neruxvace.naughtylist.backend.auth.CurrentActor
+import net.neruxvace.naughtylist.backend.exception.ResourceNotFoundException
 import net.neruxvace.naughtylist.backend.jooq.enums.CaseStatus
 import net.neruxvace.naughtylist.backend.moderation.request.CreateModerationCaseRequest
 import net.neruxvace.naughtylist.backend.moderation.request.UpdateModerationCaseRequest
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.server.ResponseStatusException
 import kotlin.uuid.Uuid
 
 @RestController
@@ -27,8 +27,8 @@ class ModerationCaseController(
     }
 
     @GetMapping("/{id}")
-    fun getCase(@PathVariable id: Long): ModerationCaseResponse? {
-        return service.findById(id) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Moderation case not found")
+    fun getCase(@PathVariable id: Long): ModerationCaseResponse {
+        return service.findById(id) ?: throw ResourceNotFoundException("Moderation case not found")
     }
 
     @PostMapping
@@ -43,19 +43,19 @@ class ModerationCaseController(
     @PatchMapping("/{id}")
     @PreAuthorize("hasAuthority('SCOPE_case:write')")
     fun updateCase(@PathVariable id: Long, @RequestBody request: UpdateModerationCaseRequest): ModerationCaseResponse {
-        return service.update(id, request) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Moderation case not found")
+        return service.update(id, request) ?: throw ResourceNotFoundException("Moderation case not found")
     }
 
     @PostMapping("/{id}/close")
     @PreAuthorize("hasAuthority('SCOPE_case:write')")
     fun closeCase(@PathVariable id: Long) {
-        service.close(id) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Moderation case not found")
+        service.close(id) ?: throw ResourceNotFoundException("Moderation case not found")
     }
 
     @PostMapping("/{id}/dismiss")
     @PreAuthorize("hasAuthority('SCOPE_case:write')")
     fun dismissCase(@PathVariable id: Long) {
-        service.dismiss(id) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Moderation case not found")
+        service.dismiss(id) ?: throw ResourceNotFoundException("Moderation case not found")
     }
 
 }

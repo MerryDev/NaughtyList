@@ -1,10 +1,10 @@
 package net.neruxvace.naughtylist.backend.reason
 
 import jakarta.validation.Valid
+import net.neruxvace.naughtylist.backend.exception.ResourceNotFoundException
 import net.neruxvace.naughtylist.backend.reason.request.CreateReasonRequest
 import net.neruxvace.naughtylist.backend.reason.request.UpdateReasonRequest
 import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 
@@ -18,9 +18,8 @@ class ReasonController(private val service: ReasonService) {
     }
 
     @GetMapping("/{id}")
-    fun getReason(@PathVariable id: Long): ResponseEntity<ReasonResponse> {
-        val reason = service.findById(id) ?: return ResponseEntity.notFound().build()
-        return ResponseEntity.ok(reason)
+    fun getReason(@PathVariable id: Long): ReasonResponse {
+        return service.findById(id) ?: throw ResourceNotFoundException("Reason not found")
     }
 
     @PostMapping
@@ -32,8 +31,7 @@ class ReasonController(private val service: ReasonService) {
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasAuthority('SCOPE_reason:write')")
-    fun updateReason(@PathVariable id: Long, @Valid @RequestBody request: UpdateReasonRequest): ResponseEntity<ReasonResponse> {
-        val reason = service.update(id, request) ?: return ResponseEntity.notFound().build()
-        return ResponseEntity.ok(reason)
+    fun updateReason(@PathVariable id: Long, @Valid @RequestBody request: UpdateReasonRequest): ReasonResponse {
+        return service.update(id, request) ?: throw ResourceNotFoundException("Reason not found")
     }
 }

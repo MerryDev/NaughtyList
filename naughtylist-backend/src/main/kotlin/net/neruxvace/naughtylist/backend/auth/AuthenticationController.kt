@@ -1,10 +1,9 @@
 package net.neruxvace.naughtylist.backend.auth
 
 import jakarta.validation.Valid
-import org.springframework.http.HttpStatus
+import net.neruxvace.naughtylist.backend.exception.InvalidRequestException
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.server.ResponseStatusException
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -20,7 +19,7 @@ class AuthenticationController(
         @RequestParam("client_id") clientId: String,
         @RequestParam("client_secret") clientSecret: String
     ): OAuthTokenResponse {
-        if (grantType != "client_credentials") throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Unsupported grant type")
+        if (grantType != "client_credentials") throw InvalidRequestException("Unsupported grant type")
 
         val response = authService.authenticate(TokenRequest(clientId, clientSecret))
 

@@ -1,10 +1,10 @@
 package net.neruxvace.naughtylist.backend.moderation.request
 
-import java.util.UUID
+import kotlin.uuid.Uuid
 
 data class CreateModerationCaseRequest(
-    val targetUuid: UUID,
+    val targetUuid: Uuid,
     val title: String? = null,
     val summary: String? = null,
-    val assignedTo: UUID? = null
+    val assignedTo: Uuid? = null
 )

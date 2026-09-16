@@ -1,10 +1,10 @@
 package net.neruxvace.naughtylist.backend.report.request
 
-import java.util.UUID
+import kotlin.uuid.Uuid
 
 data class CreateReportRequest(
-    val reporterUuid: UUID,
-    val targetUuid: UUID,
+    val reporterUuid: Uuid,
+    val targetUuid: Uuid,
     val reasonId: Long,
     val replayId: String? = null
 )

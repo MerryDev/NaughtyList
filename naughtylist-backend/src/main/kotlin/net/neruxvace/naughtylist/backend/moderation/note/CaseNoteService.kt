@@ -10,7 +10,7 @@ import org.jooq.DSLContext
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
-import java.util.UUID
+import kotlin.uuid.Uuid
 
 @Service
 class CaseNoteService(private val context: DSLContext) {
@@ -33,7 +33,7 @@ class CaseNoteService(private val context: DSLContext) {
             .fetch().map(::map)
     }
 
-    fun create(caseId: Long, request: CreateCaseNoteRequest, actorUuid: UUID): CaseNoteResponse {
+    fun create(caseId: Long, request: CreateCaseNoteRequest, actorUuid: Uuid): CaseNoteResponse {
         val case = context
             .selectFrom(MODERATION_CASE)
             .where(MODERATION_CASE.ID.eq(caseId))

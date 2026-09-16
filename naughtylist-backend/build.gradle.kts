@@ -63,6 +63,13 @@ tasks {
                 database {
                     name = "org.jooq.meta.postgres.PostgresDatabase"
                     inputSchema = "public"
+                    forcedTypes {
+                        forcedType {
+                            userType = "kotlin.uuid.Uuid"
+                            converter = "net.neruxvace.naughtylist.backend.persistence.KotlinUuidConverter"
+                            includeTypes = "UUID"
+                        }
+                    }
                 }
                 target {
                     packageName = "$group.$artifact.backend.jooq"
@@ -74,5 +81,9 @@ tasks {
 
     compileKotlin {
         dependsOn(jooqCodegen)
+    }
+
+    withType<Test>().configureEach {
+        useJUnitPlatform()
     }
 }

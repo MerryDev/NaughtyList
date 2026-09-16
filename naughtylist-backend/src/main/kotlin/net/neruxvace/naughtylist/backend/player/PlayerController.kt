@@ -8,7 +8,7 @@ import net.neruxvace.naughtylist.backend.player.response.PlayerNameResponse
 import net.neruxvace.naughtylist.backend.player.response.PlayerResponse
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import java.util.*
+import kotlin.uuid.Uuid
 
 @RestController
 @RequestMapping("/api/v1/players")
@@ -18,19 +18,19 @@ class PlayerController(
 ) {
 
     @PutMapping("/{uuid}")
-    fun syncPlayer(@PathVariable uuid: UUID, @Valid @RequestBody request: SyncPlayerRequest): PlayerResponse {
+    fun syncPlayer(@PathVariable uuid: Uuid, @Valid @RequestBody request: SyncPlayerRequest): PlayerResponse {
         client.requireServer()
         return service.sync(uuid, request.name)
     }
 
     @PutMapping("/{uuid}/discord")
-    fun updateDiscordId(@PathVariable uuid: UUID, @Valid @RequestBody request: UpdateDiscordIdRequest): ResponseEntity<PlayerResponse> {
+    fun updateDiscordId(@PathVariable uuid: Uuid, @Valid @RequestBody request: UpdateDiscordIdRequest): ResponseEntity<PlayerResponse> {
         val player = service.updateDiscordId(uuid, request.discordId) ?: return ResponseEntity.notFound().build()
         return ResponseEntity.ok(player)
     }
 
     @GetMapping("/{uuid}")
-    fun getPlayer(@PathVariable uuid: UUID): ResponseEntity<PlayerResponse> {
+    fun getPlayer(@PathVariable uuid: Uuid): ResponseEntity<PlayerResponse> {
         val player = service.findByUuid(uuid) ?: return ResponseEntity.notFound().build()
         return ResponseEntity.ok(player)
     }
@@ -42,7 +42,7 @@ class PlayerController(
     }
 
     @GetMapping("/{uuid}/names")
-    fun getNameHistory(@PathVariable uuid: UUID): ResponseEntity<List<PlayerNameResponse>> {
+    fun getNameHistory(@PathVariable uuid: Uuid): ResponseEntity<List<PlayerNameResponse>> {
         val history = service.getNameHistory(uuid) ?: return ResponseEntity.notFound().build()
         return ResponseEntity.ok(history)
     }

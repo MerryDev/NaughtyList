@@ -17,12 +17,12 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDateTime
-import java.util.*
+import kotlin.uuid.Uuid
 
 @Service
 class ModerationCaseService(private val context: DSLContext) {
 
-    fun findAll(status: CaseStatus?, targetUuid: UUID?, assignedTo: UUID?): List<ModerationCaseResponse> {
+    fun findAll(status: CaseStatus?, targetUuid: Uuid?, assignedTo: Uuid?): List<ModerationCaseResponse> {
         var condition: Condition = DSL.trueCondition()
 
         status?.let { condition = condition.and(MODERATION_CASE.STATUS.eq(it)) }
@@ -43,7 +43,7 @@ class ModerationCaseService(private val context: DSLContext) {
             .fetchOne()?.let(::map)
     }
 
-    fun create(request: CreateModerationCaseRequest, actorUuid: UUID): ModerationCaseResponse {
+    fun create(request: CreateModerationCaseRequest, actorUuid: Uuid): ModerationCaseResponse {
         requirePlayer(request.targetUuid, "Target player not found")
         request.assignedTo?.let { requirePlayer(it, "Assigned player not found") }
 
@@ -131,7 +131,7 @@ class ModerationCaseService(private val context: DSLContext) {
         }
     }
 
-    private fun requirePlayer(uuid: UUID, message: String) {
+    private fun requirePlayer(uuid: Uuid, message: String) {
         val exists = context.fetchExists(
             context.selectOne()
                 .from(PLAYER)

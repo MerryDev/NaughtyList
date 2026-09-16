@@ -5,7 +5,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
 import org.springframework.stereotype.Component
 import org.springframework.web.server.ResponseStatusException
-import java.util.UUID
+import kotlin.uuid.Uuid
 
 @Component
 class CurrentActor {
@@ -17,11 +17,7 @@ class CurrentActor {
         if (token.getClaimAsString("client_type") != "ACTOR") unauthorized()
 
         val clientId = token.getClaimAsString("client_id") ?: unauthorized()
-        val playerUuid = try {
-            UUID.fromString(token.subject)
-        } catch (_: IllegalArgumentException) {
-            unauthorized()
-        }
+        val playerUuid = token.subject?.let(Uuid::parseOrNull) ?: unauthorized()
 
         return AuthenticatedActor(playerUuid = playerUuid, clientId = clientId)
     }

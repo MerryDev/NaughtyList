@@ -1,8 +1,8 @@
 package net.neruxvace.naughtylist.backend.auth
 
-import java.util.*
+import kotlin.uuid.Uuid
 
 data class ActorTokenRequest(
-    val playerUuid: UUID,
+    val playerUuid: Uuid,
     val permissions: Set<String>
 )

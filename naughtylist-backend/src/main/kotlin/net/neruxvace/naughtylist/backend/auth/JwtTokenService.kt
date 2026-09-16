@@ -7,7 +7,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoder
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters
 import org.springframework.stereotype.Service
 import java.time.Instant
-import java.util.*
+import kotlin.uuid.Uuid
 
 @Service
 class JwtTokenService(
@@ -33,7 +33,7 @@ class JwtTokenService(
         return encoder.encode(JwtEncoderParameters.from(header, claims)).tokenValue
     }
 
-    fun createActorToken(playerUuid: UUID, clientId: String, scopes: Set<String>): String {
+    fun createActorToken(playerUuid: Uuid, clientId: String, scopes: Set<String>): String {
         val now = Instant.now()
         val claims = JwtClaimsSet.builder()
             .issuer(properties.issuer)

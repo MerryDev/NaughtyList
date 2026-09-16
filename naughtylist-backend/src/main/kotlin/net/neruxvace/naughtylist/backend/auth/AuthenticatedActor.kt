@@ -1,8 +1,8 @@
 package net.neruxvace.naughtylist.backend.auth
 
-import java.util.UUID
+import kotlin.uuid.Uuid
 
 data class AuthenticatedActor(
-    val playerUuid: UUID,
+    val playerUuid: Uuid,
     val clientId: String
 )

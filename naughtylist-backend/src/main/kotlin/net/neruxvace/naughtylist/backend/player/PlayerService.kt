@@ -12,12 +12,12 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDateTime
-import java.util.*
+import kotlin.uuid.Uuid
 
 @Service
 class PlayerService(private val context: DSLContext) {
 
-    fun findByUuid(uuid: UUID): PlayerResponse? {
+    fun findByUuid(uuid: Uuid): PlayerResponse? {
         val player = context
             .selectFrom(PLAYER)
             .where(PLAYER.UUID.eq(uuid))
@@ -50,7 +50,7 @@ class PlayerService(private val context: DSLContext) {
         return findByUuid(uuid)
     }
 
-    fun getNameHistory(uuid: UUID): List<PlayerNameResponse>? {
+    fun getNameHistory(uuid: Uuid): List<PlayerNameResponse>? {
         if (!context.fetchExists(context.selectOne().from(PLAYER).where(PLAYER.UUID.eq(uuid)))) return null
 
         return context
@@ -68,7 +68,7 @@ class PlayerService(private val context: DSLContext) {
     }
 
     @Transactional
-    fun sync(uuid: UUID, name: String): PlayerResponse {
+    fun sync(uuid: Uuid, name: String): PlayerResponse {
         val now = LocalDateTime.now()
 
         context.insertInto(PLAYER)
@@ -100,7 +100,7 @@ class PlayerService(private val context: DSLContext) {
         return requireNotNull(findByUuid(uuid))
     }
 
-    fun updateDiscordId(uuid: UUID, discordId: String?): PlayerResponse? {
+    fun updateDiscordId(uuid: Uuid, discordId: String?): PlayerResponse? {
         val updated = context
             .update(PLAYER)
             .set(PLAYER.DISCORD_ID, discordId)
@@ -110,7 +110,7 @@ class PlayerService(private val context: DSLContext) {
         return if (updated == 0) null else findByUuid(uuid)
     }
 
-    private fun insertName(uuid: UUID, name: String, timestamp: LocalDateTime) {
+    private fun insertName(uuid: Uuid, name: String, timestamp: LocalDateTime) {
         val inserted = context
             .insertInto(PLAYER_NAME_HISTORY)
             .set(PLAYER_NAME_HISTORY.PLAYER_UUID, uuid)

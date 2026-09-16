@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
-import java.util.*
+import kotlin.uuid.Uuid
 
 @RestController
 @RequestMapping("/api/v1/reports")
@@ -24,7 +24,7 @@ class ReportController(
     @GetMapping
     fun getReports(
         @RequestParam(required = false) status: ReportStatus?,
-        @RequestParam(required = false) targetUuid: UUID?,
+        @RequestParam(required = false) targetUuid: Uuid?,
         @RequestParam(required = false) serverName: String?,
         @RequestParam(required = false) caseId: Long?
     ): List<ReportResponse> {

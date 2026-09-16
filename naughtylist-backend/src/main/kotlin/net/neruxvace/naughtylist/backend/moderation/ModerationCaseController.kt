@@ -6,17 +6,9 @@ import net.neruxvace.naughtylist.backend.moderation.request.CreateModerationCase
 import net.neruxvace.naughtylist.backend.moderation.request.UpdateModerationCaseRequest
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PatchMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.ResponseStatus
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
-import java.util.UUID
+import kotlin.uuid.Uuid
 
 @RestController
 @RequestMapping("/api/v1/cases")
@@ -28,8 +20,8 @@ class ModerationCaseController(
     @GetMapping
     fun getCases(
         @RequestParam(required = false) status: CaseStatus?,
-        @RequestParam(required = false) targetUuid: UUID?,
-        @RequestParam(required = false) assignedTo: UUID?
+        @RequestParam(required = false) targetUuid: Uuid?,
+        @RequestParam(required = false) assignedTo: Uuid?
     ): List<ModerationCaseResponse> {
         return service.findAll(status, targetUuid, assignedTo)
     }

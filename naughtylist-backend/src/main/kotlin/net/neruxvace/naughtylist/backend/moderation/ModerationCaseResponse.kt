@@ -2,16 +2,16 @@ package net.neruxvace.naughtylist.backend.moderation
 
 import net.neruxvace.naughtylist.backend.jooq.enums.CaseStatus
 import java.time.LocalDateTime
-import java.util.UUID
+import kotlin.uuid.Uuid
 
 data class ModerationCaseResponse(
     val id: Long,
-    val targetUuid: UUID,
+    val targetUuid: Uuid,
     val status: CaseStatus,
     val title: String?,
     val summary: String?,
-    val createdBy: UUID?,
-    val assignedTo: UUID?,
+    val createdBy: Uuid?,
+    val assignedTo: Uuid?,
     val createdAt: LocalDateTime,
     val closedAt: LocalDateTime?
 )

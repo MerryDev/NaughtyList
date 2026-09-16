@@ -19,7 +19,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.server.ResponseStatusException
-import java.util.*
+import kotlin.uuid.Uuid
 
 @Service
 class ReportService(
@@ -27,7 +27,7 @@ class ReportService(
     private val moderationCaseService: ModerationCaseService
 ) {
 
-    fun findAll(status: ReportStatus?, targetUuid: UUID?, serverName: String?, caseId: Long?): List<ReportResponse> {
+    fun findAll(status: ReportStatus?, targetUuid: Uuid?, serverName: String?, caseId: Long?): List<ReportResponse> {
         var condition: Condition = DSL.trueCondition()
 
         status?.let { condition = condition.and(REPORT.STATUS.eq(it)) }
@@ -83,7 +83,7 @@ class ReportService(
     }
 
     @Transactional
-    fun accept(id: Long, actorUuid: UUID): ReportResponse? {
+    fun accept(id: Long, actorUuid: Uuid): ReportResponse? {
         val report = findReportForUpdate(id) ?: return null
 
         if (report.status != ReportStatus.OPEN) {
@@ -170,7 +170,7 @@ class ReportService(
         if (case.status != CaseStatus.OPEN) throw ResponseStatusException(HttpStatus.CONFLICT, "Moderation case is not open")
     }
 
-    private fun resolveCaseForAcceptance(targetUuid: UUID, actorUuid: UUID): Long {
+    private fun resolveCaseForAcceptance(targetUuid: Uuid, actorUuid: Uuid): Long {
         lockPlayer(targetUuid)
 
         val openCases = context
@@ -187,7 +187,7 @@ class ReportService(
         }
     }
 
-    private fun lockPlayer(uuid: UUID) {
+    private fun lockPlayer(uuid: Uuid) {
         context
             .select(PLAYER.UUID)
             .from(PLAYER)
@@ -203,7 +203,7 @@ class ReportService(
             .fetchOne()
     }
 
-    private fun requirePlayer(uuid: UUID) {
+    private fun requirePlayer(uuid: Uuid) {
         val exists = context.fetchExists(
             context.selectOne()
                 .from(PLAYER)

@@ -1,5 +1,8 @@
 package net.neruxvace.naughtylist.backend.report
 
+import net.neruxvace.naughtylist.backend.exception.InvalidRequestException
+import net.neruxvace.naughtylist.backend.exception.ResourceConflictException
+import net.neruxvace.naughtylist.backend.exception.ResourceNotFoundException
 import net.neruxvace.naughtylist.backend.jooq.enums.CaseStatus
 import net.neruxvace.naughtylist.backend.jooq.enums.ReportStatus
 import net.neruxvace.naughtylist.backend.jooq.tables.records.ReportRecord
@@ -15,10 +18,8 @@ import net.neruxvace.naughtylist.backend.report.request.UpdateReportCaseRequest
 import org.jooq.Condition
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.web.server.ResponseStatusException
 import kotlin.uuid.Uuid
 
 @Service
@@ -69,7 +70,7 @@ class ReportService(
         val report = findReportForUpdate(id) ?: return null
 
         if (report.status != ReportStatus.OPEN) {
-            throw ResponseStatusException(HttpStatus.CONFLICT, "Report is not open")
+            throw ResourceConflictException("Report is not open")
         }
 
         val updated = context
@@ -87,7 +88,7 @@ class ReportService(
         val report = findReportForUpdate(id) ?: return null
 
         if (report.status != ReportStatus.OPEN) {
-            throw ResponseStatusException(HttpStatus.CONFLICT, "Report is not open")
+            throw ResourceConflictException("Report is not open")
         }
 
         val caseId = report.caseId?.let { caseId ->
@@ -111,20 +112,20 @@ class ReportService(
         val report = findReportForUpdate(id) ?: return null
 
         if (report.status != ReportStatus.OPEN) {
-            throw ResponseStatusException(HttpStatus.CONFLICT, "Report is not open")
+            throw ResourceConflictException("Report is not open")
         }
 
         request.caseId?.let { caseId ->
             val case = context
                 .selectFrom(MODERATION_CASE)
                 .where(MODERATION_CASE.ID.eq(caseId))
-                .fetchOne() ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Case not found")
+                .fetchOne() ?: throw ResourceNotFoundException("Moderation case not found")
 
             if (case.status != CaseStatus.OPEN) {
-                throw ResponseStatusException(HttpStatus.CONFLICT, "Case is not open")
+                throw ResourceConflictException("Moderation case is not open")
             }
             if (case.targetUuid != report.targetUuid) {
-                throw ResponseStatusException(HttpStatus.CONFLICT, "Moderation case target does not match report target")
+                throw ResourceConflictException("Moderation case target does not match report target")
             }
         }
 
@@ -165,9 +166,9 @@ class ReportService(
             .selectFrom(MODERATION_CASE)
             .where(MODERATION_CASE.ID.eq(id))
             .forUpdate()
-            .fetchOne() ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Moderation case not found")
+            .fetchOne() ?: throw ResourceNotFoundException("Moderation case not found")
 
-        if (case.status != CaseStatus.OPEN) throw ResponseStatusException(HttpStatus.CONFLICT, "Moderation case is not open")
+        if (case.status != CaseStatus.OPEN) throw ResourceConflictException("Moderation case is not open")
     }
 
     private fun resolveCaseForAcceptance(targetUuid: Uuid, actorUuid: Uuid): Long {
@@ -183,7 +184,7 @@ class ReportService(
         return when (openCases.size) {
             0 -> moderationCaseService.create(CreateModerationCaseRequest(targetUuid), actorUuid).id
             1 -> openCases.single().id.required()
-            else -> throw ResponseStatusException(HttpStatus.CONFLICT, "Multiple open moderation cases exist; assign the report to a case before accepting it")
+            else -> throw ResourceConflictException("Multiple open moderation cases exist; assign the report to a case before accepting it")
         }
     }
 
@@ -209,7 +210,7 @@ class ReportService(
                 .from(PLAYER)
                 .where(PLAYER.UUID.eq(uuid))
         )
-        if (!exists) throw ResponseStatusException(HttpStatus.NOT_FOUND, "Player not found")
+        if (!exists) throw ResourceNotFoundException("Player not found")
     }
 
     private fun requireEnabledReason(id: Long) {
@@ -217,8 +218,8 @@ class ReportService(
             .select(REASON.ENABLED)
             .from(REASON)
             .where(REASON.ID.eq(id))
-            .fetchOne() ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Reason not found")
+            .fetchOne() ?: throw ResourceNotFoundException("Reason not found")
 
-        if (reason.value1() != true) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Reason is disabled")
+        if (reason.value1() != true) throw InvalidRequestException("Reason is disabled")
     }
 }

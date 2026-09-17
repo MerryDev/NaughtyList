@@ -1,6 +1,7 @@
 package net.neruxvace.naughtylist.backend.reason
 
 import net.neruxvace.naughtylist.backend.exception.ResourceConflictException
+import net.neruxvace.naughtylist.backend.jooq.tables.records.ReasonRecord
 import net.neruxvace.naughtylist.backend.jooq.tables.references.REASON
 import net.neruxvace.naughtylist.backend.persistence.required
 import net.neruxvace.naughtylist.backend.reason.request.CreateReasonRequest
@@ -16,30 +17,14 @@ class ReasonService(private val context: DSLContext) {
             .selectFrom(REASON)
             .orderBy(REASON.NAME.asc())
             .fetch()
-            .map {
-                ReasonResponse(
-                    id = it.id.required(),
-                    key = it.key, name = it.name,
-                    description = it.description,
-                    enabled = it.enabled.required(),
-                    createdAt = it.createdAt.required()
-                )
-            }
+            .map(::map)
     }
 
     fun findById(id: Long): ReasonResponse? {
-        val record = context
+        return context
             .selectFrom(REASON)
             .where(REASON.ID.eq(id))
-            .fetchOne() ?: return null
-
-        return ReasonResponse(
-            id = record.id.required(),
-            key = record.key, name = record.name,
-            description = record.description,
-            enabled = record.enabled.required(),
-            createdAt = record.createdAt.required()
-        )
+            .fetchOne()?.let(::map)
     }
 
     fun create(request: CreateReasonRequest): ReasonResponse {
@@ -53,13 +38,7 @@ class ReasonService(private val context: DSLContext) {
             .returning()
             .fetchOne() ?: error("Failed to create reason with key ${request.key}")
 
-        return ReasonResponse(
-            id = record.id.required(),
-            key = record.key, name = record.name,
-            description = record.description,
-            enabled = record.enabled.required(),
-            createdAt = record.createdAt.required()
-        )
+        return map(record)
     }
 
     fun update(id: Long, request: UpdateReasonRequest): ReasonResponse? {
@@ -93,4 +72,12 @@ class ReasonService(private val context: DSLContext) {
         )
     }
 
+    private fun map(record: ReasonRecord): ReasonResponse =
+        ReasonResponse(
+            id = record.id.required(),
+            key = record.key, name = record.name,
+            description = record.description,
+            enabled = record.enabled.required(),
+            createdAt = record.createdAt.required()
+        )
 }

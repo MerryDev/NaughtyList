@@ -101,7 +101,20 @@ Authorization: Bearer {{actorToken}}
 Content-Type: application/json
 
 {
-  "caseId": {{caseId}}
+  "caseId": {{investigationCaseId}}
+}
+
+###
+
+### Assign report to prepared acceptance case
+# @name assignAssignedAcceptReportToCase
+
+PUT {{baseUrl}}/reports/{{reportId}}/case
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "caseId": {{assignedAcceptCaseId}}
 }
 
 ###
@@ -252,7 +265,7 @@ Authorization: Bearer {{actorToken}}
 ### List reports by case
 # @name getReportsByCase
 
-GET {{baseUrl}}/reports?caseId={{caseId}}
+GET {{baseUrl}}/reports?caseId={{investigationCaseId}}
 Authorization: Bearer {{$auth.token("server")}}
 
 > {%
@@ -261,7 +274,7 @@ Authorization: Bearer {{$auth.token("server")}}
         client.assert(Array.isArray(response.body), "Expected response array");
         client.assert(response.body.length > 0, "Expected at least one report");
 
-        const expectedCaseId = Number(client.global.get("caseId"));
+        const expectedCaseId = Number(client.global.get("investigationCaseId"));
 
         response.body.forEach(function (report) {
             client.assert(

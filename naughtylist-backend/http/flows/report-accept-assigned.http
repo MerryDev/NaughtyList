@@ -28,7 +28,7 @@ run #createAssignedAcceptReport
 
 ###
 
-run #assignReportToCase
+run #assignAssignedAcceptReportToCase
 
 ###
 

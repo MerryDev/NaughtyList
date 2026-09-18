@@ -13,7 +13,7 @@ Content-Type: application/json
 }
 
 > {%
-    client.global.set("caseId", response.body.id);
+    client.global.set("investigationCaseId", response.body.id);
 %}
 
 ###
@@ -38,7 +38,7 @@ Content-Type: application/json
 ### Get investigation case
 # @name getInvestigationCase
 
-GET {{baseUrl}}/cases/{{caseId}}
+GET {{baseUrl}}/cases/{{investigationCaseId}}
 Authorization: Bearer {{$auth.token("server")}}
 
 ###
@@ -94,7 +94,7 @@ Authorization: Bearer {{$auth.token("server")}}
 ### Update investigation case
 # @name updateInvestigationCase
 
-PATCH {{baseUrl}}/cases/{{caseId}}
+PATCH {{baseUrl}}/cases/{{investigationCaseId}}
 Authorization: Bearer {{actorToken}}
 Content-Type: application/json
 
@@ -109,7 +109,7 @@ Content-Type: application/json
 ### Update investigation case title
 # @name updateInvestigationCaseTitle
 
-PATCH {{baseUrl}}/cases/{{caseId}}
+PATCH {{baseUrl}}/cases/{{investigationCaseId}}
 Authorization: Bearer {{actorToken}}
 Content-Type: application/json
 
@@ -122,7 +122,7 @@ Content-Type: application/json
 ### Add note to investigation case
 # @name addCaseNote
 
-POST {{baseUrl}}/cases/{{caseId}}/notes
+POST {{baseUrl}}/cases/{{investigationCaseId}}/notes
 Authorization: Bearer {{actorToken}}
 Content-Type: application/json
 
@@ -135,7 +135,7 @@ Content-Type: application/json
 ### Get notes for investigation case
 # @name getCaseNotes
 
-GET {{baseUrl}}/cases/{{caseId}}/notes
+GET {{baseUrl}}/cases/{{investigationCaseId}}/notes
 Authorization: Bearer {{$auth.token("server")}}
 
 ###
@@ -143,7 +143,7 @@ Authorization: Bearer {{$auth.token("server")}}
 ### Add replay evidence
 # @name addReplayEvidence
 
-POST {{baseUrl}}/cases/{{caseId}}/evidence
+POST {{baseUrl}}/cases/{{investigationCaseId}}/evidence
 Authorization: Bearer {{actorToken}}
 Content-Type: application/json
 
@@ -157,7 +157,7 @@ Content-Type: application/json
 ### Add screenshot evidence
 # @name addScreenshotEvidence
 
-POST {{baseUrl}}/cases/{{caseId}}/evidence
+POST {{baseUrl}}/cases/{{investigationCaseId}}/evidence
 Authorization: Bearer {{actorToken}}
 Content-Type: application/json
 
@@ -171,7 +171,7 @@ Content-Type: application/json
 ### Add video evidence
 # @name addVideoEvidence
 
-POST {{baseUrl}}/cases/{{caseId}}/evidence
+POST {{baseUrl}}/cases/{{investigationCaseId}}/evidence
 Authorization: Bearer {{actorToken}}
 Content-Type: application/json
 
@@ -185,7 +185,7 @@ Content-Type: application/json
 ### Add chat log evidence
 # @name addChatLogEvidence
 
-POST {{baseUrl}}/cases/{{caseId}}/evidence
+POST {{baseUrl}}/cases/{{investigationCaseId}}/evidence
 Authorization: Bearer {{actorToken}}
 Content-Type: application/json
 
@@ -199,7 +199,7 @@ Content-Type: application/json
 ### Get evidence for investigation case
 # @name getCaseEvidence
 
-GET {{baseUrl}}/cases/{{caseId}}/evidence
+GET {{baseUrl}}/cases/{{investigationCaseId}}/evidence
 Authorization: Bearer {{$auth.token("server")}}
 
 ###
@@ -269,7 +269,7 @@ Content-Type: application/json
 }
 
 > {%
-    client.global.set("caseId", response.body.id);
+    client.global.set("assignedAcceptCaseId", response.body.id);
 %}
 
 ###
@@ -305,7 +305,7 @@ Content-Type: application/json
 ### Close investigation case with open report
 # @name closeInvestigationCaseExpectingConflict
 
-POST {{baseUrl}}/cases/{{caseId}}/close
+POST {{baseUrl}}/cases/{{investigationCaseId}}/close
 Authorization: Bearer {{actorToken}}
 
 > {%
@@ -319,7 +319,7 @@ Authorization: Bearer {{actorToken}}
 ### Dismiss investigation case with open report
 # @name dismissInvestigationCaseExpectingConflict
 
-POST {{baseUrl}}/cases/{{caseId}}/dismiss
+POST {{baseUrl}}/cases/{{investigationCaseId}}/dismiss
 Authorization: Bearer {{actorToken}}
 
 > {%
@@ -333,7 +333,7 @@ Authorization: Bearer {{actorToken}}
 ### Close investigation case
 # @name closeInvestigationCase
 
-POST {{baseUrl}}/cases/{{caseId}}/close
+POST {{baseUrl}}/cases/{{investigationCaseId}}/close
 Authorization: Bearer {{actorToken}}
 
 > {%
@@ -347,7 +347,7 @@ Authorization: Bearer {{actorToken}}
 ### Get closed investigation case
 # @name getClosedInvestigationCase
 
-GET {{baseUrl}}/cases/{{caseId}}
+GET {{baseUrl}}/cases/{{investigationCaseId}}
 Authorization: Bearer {{$auth.token("server")}}
 
 > {%

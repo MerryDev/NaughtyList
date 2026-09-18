@@ -39,12 +39,11 @@ class ReportService(
         return context
             .selectFrom(REPORT)
             .where(condition)
-            .fetch()
-            .map { map(it) }
+            .fetch().map(::map)
     }
 
     fun findById(id: Long): ReportResponse? {
-        return findReport(id)?.let { map(it) }
+        return findReport(id)?.let(::map)
     }
 
     fun create(request: CreateReportRequest, serverName: String): ReportResponse {
@@ -139,8 +138,8 @@ class ReportService(
         return map(updated)
     }
 
-    private fun map(record: ReportRecord): ReportResponse {
-        return ReportResponse(
+    private fun map(record: ReportRecord): ReportResponse =
+        ReportResponse(
             id = record.id.required(),
             replayId = record.replayId,
             serverName = record.serverName,
@@ -151,7 +150,6 @@ class ReportService(
             caseId = record.caseId,
             createdAt = record.createdAt.required()
         )
-    }
 
     private fun findReportForUpdate(id: Long): ReportRecord? {
         return context

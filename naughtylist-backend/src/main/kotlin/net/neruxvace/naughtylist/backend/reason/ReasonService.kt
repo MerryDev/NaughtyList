@@ -16,8 +16,7 @@ class ReasonService(private val context: DSLContext) {
         return context
             .selectFrom(REASON)
             .orderBy(REASON.NAME.asc())
-            .fetch()
-            .map(::map)
+            .fetch().map(::map)
     }
 
     fun findById(id: Long): ReasonResponse? {
@@ -75,7 +74,8 @@ class ReasonService(private val context: DSLContext) {
     private fun map(record: ReasonRecord): ReasonResponse =
         ReasonResponse(
             id = record.id.required(),
-            key = record.key, name = record.name,
+            key = record.key,
+            name = record.name,
             description = record.description,
             enabled = record.enabled.required(),
             createdAt = record.createdAt.required()

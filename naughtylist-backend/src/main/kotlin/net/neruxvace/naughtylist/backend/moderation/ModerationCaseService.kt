@@ -36,12 +36,10 @@ class ModerationCaseService(private val context: DSLContext) {
             .fetch().map(::map)
     }
 
-    fun findById(id: Long): ModerationCaseResponse? {
-        return context
-            .selectFrom(MODERATION_CASE)
-            .where(MODERATION_CASE.ID.eq(id))
-            .fetchOne()?.let(::map)
-    }
+    fun findById(id: Long): ModerationCaseResponse? = context
+        .selectFrom(MODERATION_CASE)
+        .where(MODERATION_CASE.ID.eq(id))
+        .fetchOne()?.let(::map)
 
     fun create(request: CreateModerationCaseRequest, actorUuid: Uuid): ModerationCaseResponse {
         requirePlayer(request.targetUuid, "Target player not found")
@@ -89,10 +87,8 @@ class ModerationCaseService(private val context: DSLContext) {
     @Transactional
     fun close(id: Long): ModerationCaseResponse? = updateStatus(id, CaseStatus.CLOSED)
 
-
     @Transactional
     fun dismiss(id: Long): ModerationCaseResponse? = updateStatus(id, CaseStatus.DISMISSED)
-
 
     private fun updateStatus(id: Long, status: CaseStatus): ModerationCaseResponse? {
         val case = context

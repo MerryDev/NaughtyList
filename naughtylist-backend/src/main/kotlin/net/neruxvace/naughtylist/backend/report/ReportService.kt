@@ -39,13 +39,10 @@ class ReportService(
         return context
             .selectFrom(REPORT)
             .where(condition)
-            .fetch()
-            .map { map(it) }
+            .fetch().map(::map)
     }
 
-    fun findById(id: Long): ReportResponse? {
-        return findReport(id)?.let { map(it) }
-    }
+    fun findById(id: Long): ReportResponse? = findReport(id)?.let(::map)
 
     fun create(request: CreateReportRequest, serverName: String): ReportResponse {
         requirePlayer(request.reporterUuid)
@@ -139,38 +136,6 @@ class ReportService(
         return map(updated)
     }
 
-    private fun map(record: ReportRecord): ReportResponse {
-        return ReportResponse(
-            id = record.id.required(),
-            replayId = record.replayId,
-            serverName = record.serverName,
-            reporterUuid = record.reporterUuid,
-            targetUuid = record.targetUuid,
-            reasonId = record.reasonId,
-            status = record.status.required(),
-            caseId = record.caseId,
-            createdAt = record.createdAt.required()
-        )
-    }
-
-    private fun findReportForUpdate(id: Long): ReportRecord? {
-        return context
-            .selectFrom(REPORT)
-            .where(REPORT.ID.eq(id))
-            .forUpdate()
-            .fetchOne()
-    }
-
-    private fun requireOpenCase(id: Long) {
-        val case = context
-            .selectFrom(MODERATION_CASE)
-            .where(MODERATION_CASE.ID.eq(id))
-            .forUpdate()
-            .fetchOne() ?: throw ResourceNotFoundException("Moderation case not found")
-
-        if (case.status != CaseStatus.OPEN) throw ResourceConflictException("Moderation case is not open")
-    }
-
     private fun resolveCaseForAcceptance(targetUuid: Uuid, actorUuid: Uuid): Long {
         lockPlayer(targetUuid)
 
@@ -188,6 +153,12 @@ class ReportService(
         }
     }
 
+    private fun findReportForUpdate(id: Long): ReportRecord? = context
+        .selectFrom(REPORT)
+        .where(REPORT.ID.eq(id))
+        .forUpdate()
+        .fetchOne()
+
     private fun lockPlayer(uuid: Uuid) {
         context
             .select(PLAYER.UUID)
@@ -197,11 +168,19 @@ class ReportService(
             .fetchOne() ?: error("Report target player does not exist")
     }
 
-    private fun findReport(id: Long): ReportRecord? {
-        return context
-            .selectFrom(REPORT)
-            .where(REPORT.ID.eq(id))
-            .fetchOne()
+    private fun findReport(id: Long): ReportRecord? = context
+        .selectFrom(REPORT)
+        .where(REPORT.ID.eq(id))
+        .fetchOne()
+
+    private fun requireOpenCase(id: Long) {
+        val case = context
+            .selectFrom(MODERATION_CASE)
+            .where(MODERATION_CASE.ID.eq(id))
+            .forUpdate()
+            .fetchOne() ?: throw ResourceNotFoundException("Moderation case not found")
+
+        if (case.status != CaseStatus.OPEN) throw ResourceConflictException("Moderation case is not open")
     }
 
     private fun requirePlayer(uuid: Uuid) {
@@ -222,4 +201,17 @@ class ReportService(
 
         if (reason.value1() != true) throw InvalidRequestException("Reason is disabled")
     }
+
+    private fun map(record: ReportRecord): ReportResponse =
+        ReportResponse(
+            id = record.id.required(),
+            replayId = record.replayId,
+            serverName = record.serverName,
+            reporterUuid = record.reporterUuid,
+            targetUuid = record.targetUuid,
+            reasonId = record.reasonId,
+            status = record.status.required(),
+            caseId = record.caseId,
+            createdAt = record.createdAt.required()
+        )
 }

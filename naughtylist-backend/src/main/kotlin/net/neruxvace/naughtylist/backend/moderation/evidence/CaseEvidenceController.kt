@@ -14,9 +14,7 @@ class CaseEvidenceController(
 ) {
 
     @GetMapping
-    fun getEvidence(@PathVariable caseId: Long): List<CaseEvidenceResponse> {
-        return service.findAllByCaseId(caseId)
-    }
+    fun getEvidence(@PathVariable caseId: Long): List<CaseEvidenceResponse> = service.findAllByCaseId(caseId)
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -26,6 +24,7 @@ class CaseEvidenceController(
         @Valid @RequestBody request: CreateCaseEvidenceRequest
     ): CaseEvidenceResponse {
         val actor = currentActor.requireActor()
+
         return service.create(caseId, request, actor.playerUuid)
     }
 

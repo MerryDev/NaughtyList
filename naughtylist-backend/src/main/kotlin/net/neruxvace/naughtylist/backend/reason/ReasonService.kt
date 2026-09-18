@@ -1,6 +1,7 @@
 package net.neruxvace.naughtylist.backend.reason
 
 import net.neruxvace.naughtylist.backend.exception.ResourceConflictException
+import net.neruxvace.naughtylist.backend.jooq.tables.records.ReasonRecord
 import net.neruxvace.naughtylist.backend.jooq.tables.references.REASON
 import net.neruxvace.naughtylist.backend.persistence.required
 import net.neruxvace.naughtylist.backend.reason.request.CreateReasonRequest
@@ -11,36 +12,15 @@ import org.springframework.stereotype.Service
 @Service
 class ReasonService(private val context: DSLContext) {
 
-    fun findAll(): List<ReasonResponse> {
-        return context
-            .selectFrom(REASON)
-            .orderBy(REASON.NAME.asc())
-            .fetch()
-            .map {
-                ReasonResponse(
-                    id = it.id.required(),
-                    key = it.key, name = it.name,
-                    description = it.description,
-                    enabled = it.enabled.required(),
-                    createdAt = it.createdAt.required()
-                )
-            }
-    }
+    fun findAll(): List<ReasonResponse> = context
+        .selectFrom(REASON)
+        .orderBy(REASON.NAME.asc())
+        .fetch().map(::map)
 
-    fun findById(id: Long): ReasonResponse? {
-        val record = context
-            .selectFrom(REASON)
-            .where(REASON.ID.eq(id))
-            .fetchOne() ?: return null
-
-        return ReasonResponse(
-            id = record.id.required(),
-            key = record.key, name = record.name,
-            description = record.description,
-            enabled = record.enabled.required(),
-            createdAt = record.createdAt.required()
-        )
-    }
+    fun findById(id: Long): ReasonResponse? = context
+        .selectFrom(REASON)
+        .where(REASON.ID.eq(id))
+        .fetchOne()?.let(::map)
 
     fun create(request: CreateReasonRequest): ReasonResponse {
         if (keyExists(request.key)) throw ResourceConflictException("A reason with key ${request.key} already exists")
@@ -53,13 +33,7 @@ class ReasonService(private val context: DSLContext) {
             .returning()
             .fetchOne() ?: error("Failed to create reason with key ${request.key}")
 
-        return ReasonResponse(
-            id = record.id.required(),
-            key = record.key, name = record.name,
-            description = record.description,
-            enabled = record.enabled.required(),
-            createdAt = record.createdAt.required()
-        )
+        return map(record)
     }
 
     fun update(id: Long, request: UpdateReasonRequest): ReasonResponse? {
@@ -77,20 +51,27 @@ class ReasonService(private val context: DSLContext) {
         return findById(id)
     }
 
-    private fun keyExists(key: String): Boolean {
-        return context.fetchExists(
+    private fun keyExists(key: String): Boolean = context
+        .fetchExists(
             context.selectOne()
                 .from(REASON)
                 .where(REASON.KEY.eq(key))
         )
-    }
 
-    private fun idExists(id: Long): Boolean {
-        return context.fetchExists(
+    private fun idExists(id: Long): Boolean = context
+        .fetchExists(
             context.selectOne()
                 .from(REASON)
                 .where(REASON.ID.eq(id))
         )
-    }
 
+    private fun map(record: ReasonRecord): ReasonResponse =
+        ReasonResponse(
+            id = record.id.required(),
+            key = record.key,
+            name = record.name,
+            description = record.description,
+            enabled = record.enabled.required(),
+            createdAt = record.createdAt.required()
+        )
 }

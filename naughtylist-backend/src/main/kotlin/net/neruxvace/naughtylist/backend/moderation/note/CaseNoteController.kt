@@ -21,9 +21,7 @@ class CaseNoteController(
 ) {
 
     @GetMapping
-    fun getNotes(@PathVariable caseId: Long): List<CaseNoteResponse> {
-        return service.findAllByCaseId(caseId)
-    }
+    fun getNotes(@PathVariable caseId: Long): List<CaseNoteResponse> = service.findAllByCaseId(caseId)
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

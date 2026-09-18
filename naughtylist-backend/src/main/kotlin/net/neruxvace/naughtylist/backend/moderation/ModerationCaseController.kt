@@ -22,14 +22,11 @@ class ModerationCaseController(
         @RequestParam(required = false) status: CaseStatus?,
         @RequestParam(required = false) targetUuid: Uuid?,
         @RequestParam(required = false) assignedTo: Uuid?
-    ): List<ModerationCaseResponse> {
-        return service.findAll(status, targetUuid, assignedTo)
-    }
+    ): List<ModerationCaseResponse> = service.findAll(status, targetUuid, assignedTo)
 
     @GetMapping("/{id}")
-    fun getCase(@PathVariable id: Long): ModerationCaseResponse {
-        return service.findById(id) ?: throw ResourceNotFoundException("Moderation case not found")
-    }
+    fun getCase(@PathVariable id: Long): ModerationCaseResponse = service.findById(id)
+        ?: throw ResourceNotFoundException("Moderation case not found")
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -42,9 +39,11 @@ class ModerationCaseController(
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasAuthority('SCOPE_case:write')")
-    fun updateCase(@PathVariable id: Long, @RequestBody request: UpdateModerationCaseRequest): ModerationCaseResponse {
-        return service.update(id, request) ?: throw ResourceNotFoundException("Moderation case not found")
-    }
+    fun updateCase(
+        @PathVariable id: Long,
+        @RequestBody request: UpdateModerationCaseRequest
+    ): ModerationCaseResponse = service.update(id, request)
+        ?: throw ResourceNotFoundException("Moderation case not found")
 
     @PostMapping("/{id}/close")
     @PreAuthorize("hasAuthority('SCOPE_case:write')")
@@ -57,5 +56,4 @@ class ModerationCaseController(
     fun dismissCase(@PathVariable id: Long) {
         service.dismiss(id) ?: throw ResourceNotFoundException("Moderation case not found")
     }
-
 }

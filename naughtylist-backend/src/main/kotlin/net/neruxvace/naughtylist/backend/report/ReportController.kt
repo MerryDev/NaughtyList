@@ -26,14 +26,12 @@ class ReportController(
         @RequestParam(required = false) targetUuid: Uuid?,
         @RequestParam(required = false) serverName: String?,
         @RequestParam(required = false) caseId: Long?
-    ): List<ReportResponse> {
-        return service.findAll(status, targetUuid, serverName, caseId)
-    }
+    ): List<ReportResponse> =service.findAll(status, targetUuid, serverName, caseId)
+
 
     @GetMapping("/{id}")
-    fun getReport(@PathVariable id: Long): ReportResponse {
-        return service.findById(id) ?: throw ResourceNotFoundException("Report not found")
-    }
+    fun getReport(@PathVariable id: Long): ReportResponse = service.findById(id)
+        ?: throw ResourceNotFoundException("Report not found")
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -45,16 +43,16 @@ class ReportController(
 
     @PostMapping("/{id}/close")
     @PreAuthorize("hasAuthority('SCOPE_report:review')")
-    fun closeReport(@PathVariable id: Long): ReportResponse {
-        return service.close(id) ?: throw ResourceNotFoundException("Report not found")
-    }
+    fun closeReport(@PathVariable id: Long): ReportResponse = service.close(id)
+        ?: throw ResourceNotFoundException("Report not found")
 
     @PostMapping("/{id}/accept")
     @PreAuthorize("hasAuthority('SCOPE_report:review')")
     fun acceptReport(@PathVariable id: Long): ReportResponse {
         val actor = currentActor.requireActor()
 
-        return service.accept(id, actor.playerUuid) ?: throw ResourceNotFoundException("Report not found")
+        return service.accept(id, actor.playerUuid)
+            ?: throw ResourceNotFoundException("Report not found")
     }
 
     @PutMapping("/{id}/case")
@@ -62,7 +60,7 @@ class ReportController(
     fun updateReportCase(
         @PathVariable id: Long,
         @Valid @RequestBody request: UpdateReportCaseRequest
-    ): ReportResponse {
-        return service.updateCase(id, request) ?: throw ResourceNotFoundException("Report not found")
-    }
+    ): ReportResponse = service.updateCase(id, request)
+        ?: throw ResourceNotFoundException("Report not found")
+
 }

@@ -24,22 +24,22 @@ class PlayerController(
     }
 
     @PutMapping("/{uuid}/discord")
-    fun updateDiscordId(@PathVariable uuid: Uuid, @Valid @RequestBody request: UpdateDiscordIdRequest): PlayerResponse {
-        return service.updateDiscordId(uuid, request.discordId) ?: throw ResourceNotFoundException("Player not found")
-    }
+    fun updateDiscordId(
+        @PathVariable uuid: Uuid,
+        @Valid @RequestBody request: UpdateDiscordIdRequest
+    ): PlayerResponse = service.updateDiscordId(uuid, request.discordId)
+        ?: throw ResourceNotFoundException("Player not found")
 
     @GetMapping("/{uuid}")
-    fun getPlayer(@PathVariable uuid: Uuid): PlayerResponse {
-        return service.findByUuid(uuid) ?: throw ResourceNotFoundException("Player not found")
-    }
+    fun getPlayer(@PathVariable uuid: Uuid): PlayerResponse = service.findByUuid(uuid)
+        ?: throw ResourceNotFoundException("Player not found")
 
     @GetMapping
-    fun getPlayerByName(@RequestParam name: String): PlayerResponse {
-        return service.findByName(name) ?: throw ResourceNotFoundException("Player not found")
-    }
+    fun getPlayerByName(@RequestParam name: String): PlayerResponse = service.findByName(name)
+        ?: throw ResourceNotFoundException("Player not found")
 
     @GetMapping("/{uuid}/names")
-    fun getNameHistory(@PathVariable uuid: Uuid): List<PlayerNameResponse> {
-        return service.getNameHistory(uuid) ?: throw ResourceNotFoundException("Player not found")
-    }
+    fun getNameHistory(@PathVariable uuid: Uuid): List<PlayerNameResponse> = service.getNameHistory(uuid)
+        ?: throw ResourceNotFoundException("Player not found")
+
 }

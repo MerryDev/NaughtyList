@@ -30,9 +30,7 @@ class AuthenticationController(
     }
 
     @PostMapping("/actor-token")
-    fun createActorToken(@Valid @RequestBody request: ActorTokenRequest): TokenResponse {
-        return actorAuthService.createToken(request)
-    }
+    fun createActorToken(@Valid @RequestBody request: ActorTokenRequest): TokenResponse = actorAuthService.createToken(request)
 
     @GetMapping("/me")
     fun me(): ClientInfoResponse {

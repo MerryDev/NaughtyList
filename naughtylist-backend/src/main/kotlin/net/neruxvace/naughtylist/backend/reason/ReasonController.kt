@@ -13,25 +13,23 @@ import org.springframework.web.bind.annotation.*
 class ReasonController(private val service: ReasonService) {
 
     @GetMapping
-    fun getReasons(): List<ReasonResponse> {
-        return service.findAll()
-    }
+    fun getReasons(): List<ReasonResponse> = service.findAll()
 
     @GetMapping("/{id}")
-    fun getReason(@PathVariable id: Long): ReasonResponse {
-        return service.findById(id) ?: throw ResourceNotFoundException("Reason not found")
-    }
+    fun getReason(@PathVariable id: Long): ReasonResponse = service.findById(id)
+        ?: throw ResourceNotFoundException("Reason not found")
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasAuthority('SCOPE_reason:write')")
-    fun createReason(@Valid @RequestBody request: CreateReasonRequest): ReasonResponse {
-        return service.create(request)
-    }
+    fun createReason(@Valid @RequestBody request: CreateReasonRequest): ReasonResponse = service.create(request)
 
     @PatchMapping("/{id}")
     @PreAuthorize("hasAuthority('SCOPE_reason:write')")
-    fun updateReason(@PathVariable id: Long, @Valid @RequestBody request: UpdateReasonRequest): ReasonResponse {
-        return service.update(id, request) ?: throw ResourceNotFoundException("Reason not found")
-    }
+    fun updateReason(
+        @PathVariable id: Long,
+        @Valid @RequestBody request: UpdateReasonRequest
+    ): ReasonResponse = service.update(id, request)
+        ?: throw ResourceNotFoundException("Reason not found")
+
 }

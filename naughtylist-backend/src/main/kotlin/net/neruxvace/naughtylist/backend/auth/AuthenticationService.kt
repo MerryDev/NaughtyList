@@ -24,8 +24,6 @@ class AuthenticationService(
         )
     }
 
-    private fun invalidCredentials(): Nothing {
-        throw InvalidCredentialsException("Invalid credentials")
-    }
+    private fun invalidCredentials(): Nothing = throw InvalidCredentialsException("Invalid credentials")
 
 }

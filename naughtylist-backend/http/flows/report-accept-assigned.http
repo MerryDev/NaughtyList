@@ -32,4 +32,4 @@ run #assignAssignedAcceptReportToCase
 
 ###
 
-run #acceptReport
+run #acceptAssignedReport

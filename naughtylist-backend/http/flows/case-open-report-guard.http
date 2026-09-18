@@ -40,7 +40,7 @@ run #dismissInvestigationCaseExpectingConflict
 
 ###
 
-run #closeAssignedReport
+run #closeInvestigationReport
 
 ###
 

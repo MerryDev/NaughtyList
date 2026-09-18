@@ -13,7 +13,7 @@ Content-Type: application/json
 }
 
 > {%
-    client.global.set("reportId", response.body.id);
+    client.global.set("investigationReportId", response.body.id);
 %}
 
 ###
@@ -40,7 +40,7 @@ Content-Type: application/json
 ### Get created report
 # @name getReport
 
-GET {{baseUrl}}/reports/{{reportId}}
+GET {{baseUrl}}/reports/{{investigationReportId}}
 Authorization: Bearer {{$auth.token("server")}}
 
 ###
@@ -96,7 +96,7 @@ Authorization: Bearer {{$auth.token("server")}}
 ### Assign report to investigation case
 # @name assignReportToCase
 
-PUT {{baseUrl}}/reports/{{reportId}}/case
+PUT {{baseUrl}}/reports/{{investigationReportId}}/case
 Authorization: Bearer {{actorToken}}
 Content-Type: application/json
 
@@ -109,7 +109,7 @@ Content-Type: application/json
 ### Assign report to prepared acceptance case
 # @name assignAssignedAcceptReportToCase
 
-PUT {{baseUrl}}/reports/{{reportId}}/case
+PUT {{baseUrl}}/reports/{{assignedAcceptReportId}}/case
 Authorization: Bearer {{actorToken}}
 Content-Type: application/json
 
@@ -122,7 +122,7 @@ Content-Type: application/json
 ### Remove report from investigation case
 # @name removeReportFromCase
 
-PUT {{baseUrl}}/reports/{{reportId}}/case
+PUT {{baseUrl}}/reports/{{investigationReportId}}/case
 Authorization: Bearer {{actorToken}}
 Content-Type: application/json
 
@@ -174,7 +174,7 @@ Content-Type: application/json
 }
 
 > {%
-    client.global.set("reportId", response.body.id);
+    client.global.set("assignedAcceptReportId", response.body.id);
 %}
 
 ###
@@ -193,7 +193,7 @@ Content-Type: application/json
 }
 
 > {%
-    client.global.set("reportId", response.body.id);
+    client.global.set("autoAcceptReportId", response.body.id);
 %}
 
 ###
@@ -212,19 +212,35 @@ Content-Type: application/json
 }
 
 > {%
-    client.global.set("reportId", response.body.id);
+    client.global.set("acceptConflictReportId", response.body.id);
 %}
 
 ###
 
-### Accept report
-# @name acceptReport
+### Accept assigned report
+# @name acceptAssignedReport
 
-POST {{baseUrl}}/reports/{{reportId}}/accept
+POST {{baseUrl}}/reports/{{assignedAcceptReportId}}/accept
 Authorization: Bearer {{actorToken}}
 
 > {%
-    client.test("Report is accepted", function () {
+    client.test("Assigned report is accepted", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+        client.assert(response.body.status === "ACCEPTED", "Expected ACCEPTED status");
+        client.assert(response.body.caseId != null, "Expected report to have a case");
+    });
+%}
+
+###
+
+### Accept report with automatically resolved case
+# @name acceptAutoReport
+
+POST {{baseUrl}}/reports/{{autoAcceptReportId}}/accept
+Authorization: Bearer {{actorToken}}
+
+> {%
+    client.test("Report is accepted with an automatically resolved case", function () {
         client.assert(response.status === 200, "Expected HTTP 200");
         client.assert(response.body.status === "ACCEPTED", "Expected ACCEPTED status");
         client.assert(response.body.caseId != null, "Expected report to have a case");
@@ -236,7 +252,7 @@ Authorization: Bearer {{actorToken}}
 ### Accept report with ambiguous cases
 # @name acceptReportExpectingConflict
 
-POST {{baseUrl}}/reports/{{reportId}}/accept
+POST {{baseUrl}}/reports/{{acceptConflictReportId}}/accept
 Authorization: Bearer {{actorToken}}
 
 > {%
@@ -247,10 +263,10 @@ Authorization: Bearer {{actorToken}}
 
 ###
 
-### Close assigned report
-# @name closeAssignedReport
+### Close investigation report
+# @name closeInvestigationReport
 
-POST {{baseUrl}}/reports/{{reportId}}/close
+POST {{baseUrl}}/reports/{{investigationReportId}}/close
 Authorization: Bearer {{actorToken}}
 
 > {%

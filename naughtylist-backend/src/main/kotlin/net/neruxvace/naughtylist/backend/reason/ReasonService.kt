@@ -1,11 +1,13 @@
 package net.neruxvace.naughtylist.backend.reason
 
+import net.neruxvace.naughtylist.backend.exception.InvalidRequestException
 import net.neruxvace.naughtylist.backend.exception.ResourceConflictException
 import net.neruxvace.naughtylist.backend.jooq.tables.records.ReasonRecord
 import net.neruxvace.naughtylist.backend.jooq.tables.references.REASON
 import net.neruxvace.naughtylist.backend.persistence.required
 import net.neruxvace.naughtylist.backend.reason.request.CreateReasonRequest
 import net.neruxvace.naughtylist.backend.reason.request.UpdateReasonRequest
+import net.neruxvace.naughtylist.backend.web.ifPresent
 import org.jooq.DSLContext
 import org.springframework.stereotype.Service
 
@@ -41,9 +43,20 @@ class ReasonService(private val context: DSLContext) {
         if (request.isEmpty()) return findById(id)
 
         val update = context.updateQuery(REASON)
-        request.name?.let { update.addValue(REASON.NAME, it) }
-        request.description?.let { update.addValue(REASON.DESCRIPTION, it) }
-        request.enabled?.let { update.addValue(REASON.ENABLED, it) }
+
+        request.name.ifPresent {
+            update.addValue(
+                REASON.NAME,
+                it ?: throw InvalidRequestException("Name cannot be null")
+            )
+        }
+        request.enabled.ifPresent {
+            update.addValue(
+                REASON.ENABLED,
+                it ?: throw InvalidRequestException("Enabled cannot be null")
+            )
+        }
+        request.description.ifPresent { update.addValue(REASON.DESCRIPTION, it) }
 
         update.addConditions(REASON.ID.eq(id))
         update.execute()

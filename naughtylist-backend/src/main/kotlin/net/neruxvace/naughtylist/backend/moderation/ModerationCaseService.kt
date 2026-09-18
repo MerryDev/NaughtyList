@@ -1,5 +1,6 @@
 package net.neruxvace.naughtylist.backend.moderation
 
+import net.neruxvace.naughtylist.backend.exception.InvalidRequestException
 import net.neruxvace.naughtylist.backend.exception.ResourceConflictException
 import net.neruxvace.naughtylist.backend.exception.ResourceNotFoundException
 import net.neruxvace.naughtylist.backend.jooq.enums.CaseStatus
@@ -11,6 +12,7 @@ import net.neruxvace.naughtylist.backend.jooq.tables.references.REPORT
 import net.neruxvace.naughtylist.backend.moderation.request.CreateModerationCaseRequest
 import net.neruxvace.naughtylist.backend.moderation.request.UpdateModerationCaseRequest
 import net.neruxvace.naughtylist.backend.persistence.required
+import net.neruxvace.naughtylist.backend.web.ifPresent
 import org.jooq.Condition
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
@@ -67,16 +69,22 @@ class ModerationCaseService(private val context: DSLContext) {
         if (case.status != CaseStatus.OPEN) {
             throw ResourceConflictException("Moderation case is not open")
         }
+        if (request.isEmpty()) return map(case)
 
-        request.assignedTo?.let { requirePlayer(it, "Assigned player not found") }
-
-        val hasChanges = request.title != null || request.summary != null || request.assignedTo != null
-        if (!hasChanges) return map(case)
+        request.assignedTo.ifPresent { assignee ->
+            assignee?.let { requirePlayer(it, "Assigned player not found") }
+        }
 
         val update = context.updateQuery(MODERATION_CASE)
-        request.title?.let { update.addValue(MODERATION_CASE.TITLE, it) }
-        request.summary?.let { update.addValue(MODERATION_CASE.SUMMARY, it) }
-        request.assignedTo?.let { update.addValue(MODERATION_CASE.ASSIGNED_TO, it) }
+
+        request.title.ifPresent {
+            update.addValue(
+                MODERATION_CASE.TITLE,
+                it ?: throw InvalidRequestException("Title cannot be null")
+            )
+        }
+        request.summary.ifPresent { update.addValue(MODERATION_CASE.SUMMARY, it) }
+        request.assignedTo.ifPresent { update.addValue(MODERATION_CASE.ASSIGNED_TO, it) }
 
         update.addConditions(MODERATION_CASE.ID.eq(id))
         update.execute()

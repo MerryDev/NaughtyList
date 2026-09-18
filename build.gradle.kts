@@ -13,8 +13,7 @@ allprojects {
 }
 
 subprojects {
-    apply<JavaPlugin>()
-
+    plugins.apply("java")
     tasks {
         java {
             toolchain.languageVersion.set(JavaLanguageVersion.of(25))

@@ -43,7 +43,7 @@ Authorization: Bearer {{$auth.token("server")}}
 ### Add empty case note
 # @name addEmptyCaseNote
 
-POST {{baseUrl}}/cases/{{caseId}}/notes
+POST {{baseUrl}}/cases/{{investigationCaseId}}/notes
 Authorization: Bearer {{actorToken}}
 Content-Type: application/json
 
@@ -62,7 +62,7 @@ Content-Type: application/json
 ### Add empty case evidence
 # @name addEmptyCaseEvidence
 
-POST {{baseUrl}}/cases/{{caseId}}/evidence
+POST {{baseUrl}}/cases/{{investigationCaseId}}/evidence
 Authorization: Bearer {{actorToken}}
 Content-Type: application/json
 

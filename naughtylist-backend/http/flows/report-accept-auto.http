@@ -23,4 +23,4 @@ run #createAutoAcceptReport
 
 ###
 
-run #acceptReport
+run #acceptAutoReport

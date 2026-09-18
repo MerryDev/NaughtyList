@@ -8,7 +8,6 @@ object PermissionMapping {
         "naughtylist.case.write" to "case:write"
     )
 
-    fun scopeFor(permissions: Set<String>): Set<String> {
-        return permissions.mapNotNull(mapping::get).toSet()
-    }
+    fun scopeFor(permissions: Set<String>): Set<String> = permissions.mapNotNull(mapping::get).toSet()
+
 }

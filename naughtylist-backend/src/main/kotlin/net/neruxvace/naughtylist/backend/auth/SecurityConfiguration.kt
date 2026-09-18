@@ -35,9 +35,7 @@ class SecurityConfiguration {
     }
 
     @Bean
-    fun jwtEncoder(key: SecretKey): JwtEncoder {
-        return NimbusJwtEncoder(ImmutableSecret(key))
-    }
+    fun jwtEncoder(key: SecretKey): JwtEncoder = NimbusJwtEncoder(ImmutableSecret(key))
 
     @Bean
     fun jwtDecoder(key: SecretKey, properties: JwtProperties): JwtDecoder {
@@ -54,14 +52,16 @@ class SecurityConfiguration {
     }
 
     @Bean
-    fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-        http
-            .csrf { it.disable() }
-            .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
-            .authorizeHttpRequests { it.requestMatchers("/api/v1/auth/token").permitAll().anyRequest().authenticated() }
-            .oauth2ResourceServer { it.jwt(Customizer.withDefaults()) }
-
-        return http.build()
-    }
+    fun securityFilterChain(http: HttpSecurity): SecurityFilterChain = http
+        .csrf { it.disable() }
+        .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+        .authorizeHttpRequests {
+            it.requestMatchers("/api/v1/auth/token")
+                .permitAll()
+                .anyRequest()
+                .authenticated()
+        }
+        .oauth2ResourceServer { it.jwt(Customizer.withDefaults()) }
+        .build()
 
 }

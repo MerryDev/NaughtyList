@@ -39,6 +39,7 @@ class ReportService(
         return context
             .selectFrom(REPORT)
             .where(condition)
+            .orderBy(REPORT.CREATED_AT.desc())
             .fetch().map(::map)
     }
 

@@ -26,7 +26,7 @@ class ReportController(
         @RequestParam(required = false) targetUuid: Uuid?,
         @RequestParam(required = false) serverName: String?,
         @RequestParam(required = false) caseId: Long?
-    ): List<ReportResponse> =service.findAll(status, targetUuid, serverName, caseId)
+    ): List<ReportResponse> = service.findAll(status, targetUuid, serverName, caseId)
 
 
     @GetMapping("/{id}")

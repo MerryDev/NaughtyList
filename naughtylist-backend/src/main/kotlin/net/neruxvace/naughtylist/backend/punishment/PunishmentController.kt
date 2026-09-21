@@ -1,17 +1,21 @@
 package net.neruxvace.naughtylist.backend.punishment
 
+import jakarta.validation.Valid
+import net.neruxvace.naughtylist.backend.auth.CurrentActor
 import net.neruxvace.naughtylist.backend.exception.ResourceNotFoundException
 import net.neruxvace.naughtylist.backend.jooq.enums.PunishmentType
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import net.neruxvace.naughtylist.backend.punishment.request.CreatePunishmentRequest
+import org.springframework.http.HttpStatus
+import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.web.bind.annotation.*
 import kotlin.uuid.Uuid
 
 @RestController
 @RequestMapping("/api/v1/punishments")
-class PunishmentController(private val service: PunishmentService) {
+class PunishmentController(
+    private val service: PunishmentService,
+    private val currentActor: CurrentActor
+) {
 
     @GetMapping
     fun getPunishments(
@@ -26,4 +30,12 @@ class PunishmentController(private val service: PunishmentService) {
     fun getPunishment(@PathVariable id: Long): PunishmentResponse = service.findById(id)
         ?: throw ResourceNotFoundException("Punishment not found")
 
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasAuthority('SCOPE_punishment:write')")
+    fun createPunishment(@Valid @RequestBody request: CreatePunishmentRequest): PunishmentResponse {
+        val actor = currentActor.requireActor()
+
+        return service.create(request, actor.playerUuid)
+    }
 }

@@ -8,3 +8,4 @@ NaughtyList verbindet die Moderation eines Minecraft-Netzwerks in einem zentrale
 - Serverübergreifende Reports mit Gründen, Replays und Statusverwaltung
 - Moderationsfälle mit Zuweisung, Notizen und Beweisen
 - Rollenbasierte API-Zugriffe für Server und Moderatoren
+- Verwarnungen, Mutes und Bans mit Laufzeit, Widerruf und Fallbezug

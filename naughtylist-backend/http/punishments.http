@@ -213,3 +213,54 @@ Content-Type: application/json
         client.assert(response.body.detail === "Reason not found", "Expected missing reason error");
     });
 %}
+
+###
+
+### Revoke punishment
+# @name revokePunishment
+
+POST {{baseUrl}}/punishments/{{punishmentId}}/revoke
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "reason": "Punishment issued in error"
+}
+
+> {%
+    client.test("Punishment is revoked", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+        client.assert(response.body.revokedAt != null, "Expected revocation timestamp");
+        client.assert(
+            response.body.revokedBy === client.variables.environment.get("testPlayerUuid"),
+            "Expected authenticated actor as revoker"
+        );
+        client.assert(
+            response.body.revokeReason === "Punishment issued in error",
+            "Expected revocation reason"
+        );
+    });
+%}
+
+###
+
+### Get revoked punishment
+# @name getRevokedPunishment
+
+GET {{baseUrl}}/punishments/{{punishmentId}}
+Authorization: Bearer {{$auth.token("server")}}
+
+> {%
+    client.test("Revocation is persisted", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+        client.assert(response.body.revokedAt != null, "Expected persisted revocation timestamp");
+        client.assert(
+            response.body.revokedBy === client.variables.environment.get("testPlayerUuid"),
+            "Expected persisted revoker"
+        );
+        client.assert(
+            response.body.revokeReason === "Punishment issued in error",
+            "Expected persisted revocation reason"
+        );
+    });
+%}

@@ -1,0 +1,35 @@
+import ../players.http
+import ../auth.http
+import ../reasons.http
+import ../cases.http
+import ../punishments.http
+
+run #syncTestPlayer
+
+###
+
+run #syncTargetPlayer
+
+###
+
+run #createActorToken
+
+###
+
+run #createReason
+
+###
+
+run #createInvestigationCase
+
+###
+
+run #issuePunishment
+
+###
+
+run #revokePunishment
+
+###
+
+run #getRevokedPunishment

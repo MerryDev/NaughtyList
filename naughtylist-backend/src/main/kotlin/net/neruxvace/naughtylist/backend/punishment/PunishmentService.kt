@@ -23,7 +23,9 @@ class PunishmentService(private val context: DSLContext) {
         caseId?.let { condition = condition.and(PUNISHMENT.CASE_ID.eq(it)) }
         active?.let {
             val now = LocalDateTime.now()
-            val activeCondition = PUNISHMENT.REVOKED_AT.isNull
+            val activeCondition = PUNISHMENT.TYPE
+                .`in`(PunishmentType.MUTE, PunishmentType.BAN)
+                .and(PUNISHMENT.REVOKED_AT.isNull)
                 .and(PUNISHMENT.STARTS_AT.le(now))
                 .and(PUNISHMENT.EXPIRES_AT.isNull.or(PUNISHMENT.EXPIRES_AT.gt(now)))
 

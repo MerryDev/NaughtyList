@@ -40,3 +40,7 @@ run #addEmptyCaseEvidence
 ###
 
 run #getUnknownReport
+
+###
+
+run #getUnknownPunishment

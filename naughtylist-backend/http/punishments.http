@@ -1,0 +1,70 @@
+### Get all punishments
+# @name getPunishments
+
+GET {{baseUrl}}/punishments
+Authorization: Bearer {{$auth.token("server")}}
+
+> {%
+    client.test("Punishments are returned", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+        client.assert(Array.isArray(response.body), "Expected response array");
+    });
+%}
+
+###
+
+### Get punishments for player
+# @name getPunishmentsForPlayer
+
+GET {{baseUrl}}/punishments?playerUuid={{testPlayerUuid}}
+Authorization: Bearer {{$auth.token("server")}}
+
+> {%
+    client.test("Punishments are filtered by player", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+        client.assert(Array.isArray(response.body), "Expected response array");
+
+        response.body.forEach(function (punishment) {
+            client.assert(
+                punishment.playerUuid === client.variables.environment.get("testPlayerUuid"),
+                "Expected every punishment to belong to the test player"
+            );
+        });
+    });
+%}
+
+###
+
+### Get active bans for player
+# @name getActiveBansForPlayer
+
+GET {{baseUrl}}/punishments?playerUuid={{testPlayerUuid}}&type=BAN&active=true
+Authorization: Bearer {{$auth.token("server")}}
+
+> {%
+    client.test("Active bans are filtered correctly", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+        client.assert(Array.isArray(response.body), "Expected response array");
+
+        response.body.forEach(function (punishment) {
+            client.assert(punishment.type === "BAN", "Expected BAN punishment");
+            client.assert(punishment.revokedAt == null, "Expected active punishment");
+        });
+    });
+%}
+
+###
+
+### Get punishments for reason
+# @name getPunishmentsForReason
+
+GET {{baseUrl}}/punishments?reasonId={{reasonId}}
+Authorization: Bearer {{$auth.token("server")}}
+
+###
+
+### Get punishments for moderation case
+# @name getPunishmentsForCase
+
+GET {{baseUrl}}/punishments?caseId={{investigationCaseId}}
+Authorization: Bearer {{$auth.token("server")}}

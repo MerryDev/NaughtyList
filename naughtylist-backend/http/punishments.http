@@ -1,3 +1,52 @@
+### Issue punishment
+# @name issuePunishment
+
+POST {{baseUrl}}/punishments
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "type": "MUTE",
+  "playerUuid": "{{testTargetUuid}}",
+  "reasonId": {{reasonId}},
+  "caseId": {{investigationCaseId}}
+}
+
+> {%
+    client.test("Punishment is issued", function () {
+        client.assert(response.status === 201, "Expected HTTP 201");
+        client.assert(response.body.type === "MUTE", "Expected MUTE punishment");
+        client.assert(
+            response.body.playerUuid === client.variables.environment.get("testTargetUuid"),
+            "Expected punishment target"
+        );
+        client.assert(
+            response.body.issuedBy === client.variables.environment.get("testPlayerUuid"),
+            "Expected authenticated actor as issuer"
+        );
+        client.assert(response.body.expiresAt == null, "Expected permanent punishment");
+    });
+
+    client.global.set("punishmentId", response.body.id);
+%}
+
+###
+
+### Get issued punishment
+# @name getIssuedPunishment
+
+GET {{baseUrl}}/punishments/{{punishmentId}}
+Authorization: Bearer {{$auth.token("server")}}
+
+> {%
+    client.test("Issued punishment can be retrieved", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+        client.assert(response.body.id != null, "Expected punishment ID");
+    });
+%}
+
+###
+
 ### Get all punishments
 # @name getPunishments
 

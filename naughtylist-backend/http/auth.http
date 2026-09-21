@@ -16,7 +16,8 @@ Content-Type: application/json
   "permissions": [
     "naughtylist.reason.write",
     "naughtylist.report.review",
-    "naughtylist.case.write"
+    "naughtylist.case.write",
+    "naughtylist.punishment.write"
   ]
 }
 

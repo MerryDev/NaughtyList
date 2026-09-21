@@ -5,6 +5,7 @@ import net.neruxvace.naughtylist.backend.auth.CurrentActor
 import net.neruxvace.naughtylist.backend.exception.ResourceNotFoundException
 import net.neruxvace.naughtylist.backend.jooq.enums.PunishmentType
 import net.neruxvace.naughtylist.backend.punishment.request.CreatePunishmentRequest
+import net.neruxvace.naughtylist.backend.punishment.request.RevokePunishmentRequest
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.*
@@ -37,5 +38,17 @@ class PunishmentController(
         val actor = currentActor.requireActor()
 
         return service.create(request, actor.playerUuid)
+    }
+
+    @PostMapping("/{id}/revoke")
+    @PreAuthorize("hasAuthority('SCOPE_punishment:write')")
+    fun revokePunishment(
+        @PathVariable id: Long,
+        @Valid @RequestBody request: RevokePunishmentRequest
+    ): PunishmentResponse {
+        val actor = currentActor.requireActor()
+
+        return service.revoke(id, request, actor.playerUuid)
+            ?: throw ResourceNotFoundException("Punishment not found")
     }
 }

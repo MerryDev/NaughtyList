@@ -85,39 +85,51 @@ Content-Type: application/json
 ### Sync assigned acceptance target
 # @name syncAcceptAssignedTarget
 
-PUT {{baseUrl}}/players/{{acceptAssignedTargetUuid}}
+PUT {{baseUrl}}/players/{{$random.uuid}}
 Authorization: Bearer {{$auth.token("server")}}
 Content-Type: application/json
 
 {
-  "name": "AcceptAssigned"
+  "name": "Assigned{{$random.alphanumeric(8)}}"
 }
+
+> {%
+    client.global.set("acceptAssignedTargetUuid", response.body.uuid);
+%}
 
 ###
 
 ### Sync automatic acceptance target
 # @name syncAcceptAutoTarget
 
-PUT {{baseUrl}}/players/{{acceptAutoTargetUuid}}
+PUT {{baseUrl}}/players/{{$random.uuid}}
 Authorization: Bearer {{$auth.token("server")}}
 Content-Type: application/json
 
 {
-  "name": "AcceptAuto"
+  "name": "Auto{{$random.alphanumeric(8)}}"
 }
+
+> {%
+    client.global.set("acceptAutoTargetUuid", response.body.uuid);
+%}
 
 ###
 
 ### Sync acceptance conflict target
 # @name syncAcceptConflictTarget
 
-PUT {{baseUrl}}/players/{{acceptConflictTargetUuid}}
+PUT {{baseUrl}}/players/{{$random.uuid}}
 Authorization: Bearer {{$auth.token("server")}}
 Content-Type: application/json
 
 {
-  "name": "AcceptConflict"
+  "name": "Conflict{{$random.alphanumeric(8)}}"
 }
+
+> {%
+    client.global.set("acceptConflictTargetUuid", response.body.uuid);
+%}
 
 ###
 

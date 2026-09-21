@@ -1,5 +1,8 @@
 package net.neruxvace.naughtylist.backend.report
 
+import net.neruxvace.naughtylist.backend.exception.InvalidRequestException
+import net.neruxvace.naughtylist.backend.exception.ResourceConflictException
+import net.neruxvace.naughtylist.backend.exception.ResourceNotFoundException
 import net.neruxvace.naughtylist.backend.jooq.enums.CaseStatus
 import net.neruxvace.naughtylist.backend.jooq.enums.ReportStatus
 import net.neruxvace.naughtylist.backend.jooq.tables.records.ReportRecord
@@ -15,10 +18,8 @@ import net.neruxvace.naughtylist.backend.report.request.UpdateReportCaseRequest
 import org.jooq.Condition
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.web.server.ResponseStatusException
 import kotlin.uuid.Uuid
 
 @Service
@@ -38,13 +39,11 @@ class ReportService(
         return context
             .selectFrom(REPORT)
             .where(condition)
-            .fetch()
-            .map { map(it) }
+            .orderBy(REPORT.CREATED_AT.desc())
+            .fetch().map(::map)
     }
 
-    fun findById(id: Long): ReportResponse? {
-        return findReport(id)?.let { map(it) }
-    }
+    fun findById(id: Long): ReportResponse? = findReport(id)?.let(::map)
 
     fun create(request: CreateReportRequest, serverName: String): ReportResponse {
         requirePlayer(request.reporterUuid)
@@ -69,7 +68,7 @@ class ReportService(
         val report = findReportForUpdate(id) ?: return null
 
         if (report.status != ReportStatus.OPEN) {
-            throw ResponseStatusException(HttpStatus.CONFLICT, "Report is not open")
+            throw ResourceConflictException("Report is not open")
         }
 
         val updated = context
@@ -87,7 +86,7 @@ class ReportService(
         val report = findReportForUpdate(id) ?: return null
 
         if (report.status != ReportStatus.OPEN) {
-            throw ResponseStatusException(HttpStatus.CONFLICT, "Report is not open")
+            throw ResourceConflictException("Report is not open")
         }
 
         val caseId = report.caseId?.let { caseId ->
@@ -111,20 +110,20 @@ class ReportService(
         val report = findReportForUpdate(id) ?: return null
 
         if (report.status != ReportStatus.OPEN) {
-            throw ResponseStatusException(HttpStatus.CONFLICT, "Report is not open")
+            throw ResourceConflictException("Report is not open")
         }
 
         request.caseId?.let { caseId ->
             val case = context
                 .selectFrom(MODERATION_CASE)
                 .where(MODERATION_CASE.ID.eq(caseId))
-                .fetchOne() ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Case not found")
+                .fetchOne() ?: throw ResourceNotFoundException("Moderation case not found")
 
             if (case.status != CaseStatus.OPEN) {
-                throw ResponseStatusException(HttpStatus.CONFLICT, "Case is not open")
+                throw ResourceConflictException("Moderation case is not open")
             }
             if (case.targetUuid != report.targetUuid) {
-                throw ResponseStatusException(HttpStatus.CONFLICT, "Moderation case target does not match report target")
+                throw ResourceConflictException("Moderation case target does not match report target")
             }
         }
 
@@ -136,38 +135,6 @@ class ReportService(
             .fetchOne() ?: error("Failed to update report case")
 
         return map(updated)
-    }
-
-    private fun map(record: ReportRecord): ReportResponse {
-        return ReportResponse(
-            id = record.id.required(),
-            replayId = record.replayId,
-            serverName = record.serverName,
-            reporterUuid = record.reporterUuid,
-            targetUuid = record.targetUuid,
-            reasonId = record.reasonId,
-            status = record.status.required(),
-            caseId = record.caseId,
-            createdAt = record.createdAt.required()
-        )
-    }
-
-    private fun findReportForUpdate(id: Long): ReportRecord? {
-        return context
-            .selectFrom(REPORT)
-            .where(REPORT.ID.eq(id))
-            .forUpdate()
-            .fetchOne()
-    }
-
-    private fun requireOpenCase(id: Long) {
-        val case = context
-            .selectFrom(MODERATION_CASE)
-            .where(MODERATION_CASE.ID.eq(id))
-            .forUpdate()
-            .fetchOne() ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Moderation case not found")
-
-        if (case.status != CaseStatus.OPEN) throw ResponseStatusException(HttpStatus.CONFLICT, "Moderation case is not open")
     }
 
     private fun resolveCaseForAcceptance(targetUuid: Uuid, actorUuid: Uuid): Long {
@@ -183,9 +150,15 @@ class ReportService(
         return when (openCases.size) {
             0 -> moderationCaseService.create(CreateModerationCaseRequest(targetUuid), actorUuid).id
             1 -> openCases.single().id.required()
-            else -> throw ResponseStatusException(HttpStatus.CONFLICT, "Multiple open moderation cases exist; assign the report to a case before accepting it")
+            else -> throw ResourceConflictException("Multiple open moderation cases exist; assign the report to a case before accepting it")
         }
     }
+
+    private fun findReportForUpdate(id: Long): ReportRecord? = context
+        .selectFrom(REPORT)
+        .where(REPORT.ID.eq(id))
+        .forUpdate()
+        .fetchOne()
 
     private fun lockPlayer(uuid: Uuid) {
         context
@@ -196,11 +169,19 @@ class ReportService(
             .fetchOne() ?: error("Report target player does not exist")
     }
 
-    private fun findReport(id: Long): ReportRecord? {
-        return context
-            .selectFrom(REPORT)
-            .where(REPORT.ID.eq(id))
-            .fetchOne()
+    private fun findReport(id: Long): ReportRecord? = context
+        .selectFrom(REPORT)
+        .where(REPORT.ID.eq(id))
+        .fetchOne()
+
+    private fun requireOpenCase(id: Long) {
+        val case = context
+            .selectFrom(MODERATION_CASE)
+            .where(MODERATION_CASE.ID.eq(id))
+            .forUpdate()
+            .fetchOne() ?: throw ResourceNotFoundException("Moderation case not found")
+
+        if (case.status != CaseStatus.OPEN) throw ResourceConflictException("Moderation case is not open")
     }
 
     private fun requirePlayer(uuid: Uuid) {
@@ -209,7 +190,7 @@ class ReportService(
                 .from(PLAYER)
                 .where(PLAYER.UUID.eq(uuid))
         )
-        if (!exists) throw ResponseStatusException(HttpStatus.NOT_FOUND, "Player not found")
+        if (!exists) throw ResourceNotFoundException("Player not found")
     }
 
     private fun requireEnabledReason(id: Long) {
@@ -217,8 +198,21 @@ class ReportService(
             .select(REASON.ENABLED)
             .from(REASON)
             .where(REASON.ID.eq(id))
-            .fetchOne() ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Reason not found")
+            .fetchOne() ?: throw ResourceNotFoundException("Reason not found")
 
-        if (reason.value1() != true) throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Reason is disabled")
+        if (reason.value1() != true) throw InvalidRequestException("Reason is disabled")
     }
+
+    private fun map(record: ReportRecord): ReportResponse =
+        ReportResponse(
+            id = record.id.required(),
+            replayId = record.replayId,
+            serverName = record.serverName,
+            reporterUuid = record.reporterUuid,
+            targetUuid = record.targetUuid,
+            reasonId = record.reasonId,
+            status = record.status.required(),
+            caseId = record.caseId,
+            createdAt = record.createdAt.required()
+        )
 }

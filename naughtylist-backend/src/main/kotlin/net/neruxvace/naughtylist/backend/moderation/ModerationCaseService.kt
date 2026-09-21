@@ -1,5 +1,8 @@
 package net.neruxvace.naughtylist.backend.moderation
 
+import net.neruxvace.naughtylist.backend.exception.InvalidRequestException
+import net.neruxvace.naughtylist.backend.exception.ResourceConflictException
+import net.neruxvace.naughtylist.backend.exception.ResourceNotFoundException
 import net.neruxvace.naughtylist.backend.jooq.enums.CaseStatus
 import net.neruxvace.naughtylist.backend.jooq.enums.ReportStatus
 import net.neruxvace.naughtylist.backend.jooq.tables.records.ModerationCaseRecord
@@ -9,13 +12,12 @@ import net.neruxvace.naughtylist.backend.jooq.tables.references.REPORT
 import net.neruxvace.naughtylist.backend.moderation.request.CreateModerationCaseRequest
 import net.neruxvace.naughtylist.backend.moderation.request.UpdateModerationCaseRequest
 import net.neruxvace.naughtylist.backend.persistence.required
+import net.neruxvace.naughtylist.backend.web.ifPresent
 import org.jooq.Condition
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.web.server.ResponseStatusException
 import java.time.LocalDateTime
 import kotlin.uuid.Uuid
 
@@ -36,12 +38,10 @@ class ModerationCaseService(private val context: DSLContext) {
             .fetch().map(::map)
     }
 
-    fun findById(id: Long): ModerationCaseResponse? {
-        return context
-            .selectFrom(MODERATION_CASE)
-            .where(MODERATION_CASE.ID.eq(id))
-            .fetchOne()?.let(::map)
-    }
+    fun findById(id: Long): ModerationCaseResponse? = context
+        .selectFrom(MODERATION_CASE)
+        .where(MODERATION_CASE.ID.eq(id))
+        .fetchOne()?.let(::map)
 
     fun create(request: CreateModerationCaseRequest, actorUuid: Uuid): ModerationCaseResponse {
         requirePlayer(request.targetUuid, "Target player not found")
@@ -67,18 +67,24 @@ class ModerationCaseService(private val context: DSLContext) {
             .fetchOne() ?: return null
 
         if (case.status != CaseStatus.OPEN) {
-            throw ResponseStatusException(HttpStatus.CONFLICT, "Moderation case is not open")
+            throw ResourceConflictException("Moderation case is not open")
+        }
+        if (request.isEmpty()) return map(case)
+
+        request.assignedTo.ifPresent { assignee ->
+            assignee?.let { requirePlayer(it, "Assigned player not found") }
         }
 
-        request.assignedTo?.let { requirePlayer(it, "Assigned player not found") }
-
-        val hasChanges = request.title != null || request.summary != null || request.assignedTo != null
-        if (!hasChanges) return map(case)
-
         val update = context.updateQuery(MODERATION_CASE)
-        request.title?.let { update.addValue(MODERATION_CASE.TITLE, it) }
-        request.summary?.let { update.addValue(MODERATION_CASE.SUMMARY, it) }
-        request.assignedTo?.let { update.addValue(MODERATION_CASE.ASSIGNED_TO, it) }
+
+        request.title.ifPresent {
+            update.addValue(
+                MODERATION_CASE.TITLE,
+                it ?: throw InvalidRequestException("Title cannot be null")
+            )
+        }
+        request.summary.ifPresent { update.addValue(MODERATION_CASE.SUMMARY, it) }
+        request.assignedTo.ifPresent { update.addValue(MODERATION_CASE.ASSIGNED_TO, it) }
 
         update.addConditions(MODERATION_CASE.ID.eq(id))
         update.execute()
@@ -89,10 +95,8 @@ class ModerationCaseService(private val context: DSLContext) {
     @Transactional
     fun close(id: Long): ModerationCaseResponse? = updateStatus(id, CaseStatus.CLOSED)
 
-
     @Transactional
     fun dismiss(id: Long): ModerationCaseResponse? = updateStatus(id, CaseStatus.DISMISSED)
-
 
     private fun updateStatus(id: Long, status: CaseStatus): ModerationCaseResponse? {
         val case = context
@@ -102,7 +106,7 @@ class ModerationCaseService(private val context: DSLContext) {
             .fetchOne() ?: return null
 
         if (case.status != CaseStatus.OPEN) {
-            throw ResponseStatusException(HttpStatus.CONFLICT, "Case is not open")
+            throw ResourceConflictException("Moderation case is not open")
         }
 
         requireNoOpenReports(id)
@@ -127,7 +131,7 @@ class ModerationCaseService(private val context: DSLContext) {
         )
 
         if (hasOpenReports) {
-            throw ResponseStatusException(HttpStatus.CONFLICT, "Case has open reports")
+            throw ResourceConflictException("Moderation case has open reports")
         }
     }
 
@@ -137,7 +141,7 @@ class ModerationCaseService(private val context: DSLContext) {
                 .from(PLAYER)
                 .where(PLAYER.UUID.eq(uuid))
         )
-        if (!exists) throw ResponseStatusException(HttpStatus.NOT_FOUND, message)
+        if (!exists) throw ResourceNotFoundException(message)
     }
 
     private fun map(record: ModerationCaseRecord): ModerationCaseResponse =

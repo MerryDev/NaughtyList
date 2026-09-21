@@ -1,5 +1,7 @@
 package net.neruxvace.naughtylist.backend.moderation.note
 
+import net.neruxvace.naughtylist.backend.exception.ResourceConflictException
+import net.neruxvace.naughtylist.backend.exception.ResourceNotFoundException
 import net.neruxvace.naughtylist.backend.jooq.enums.CaseStatus
 import net.neruxvace.naughtylist.backend.jooq.tables.records.CaseNoteRecord
 import net.neruxvace.naughtylist.backend.jooq.tables.references.CASE_NOTE
@@ -7,9 +9,7 @@ import net.neruxvace.naughtylist.backend.jooq.tables.references.MODERATION_CASE
 import net.neruxvace.naughtylist.backend.moderation.note.request.CreateCaseNoteRequest
 import net.neruxvace.naughtylist.backend.persistence.required
 import org.jooq.DSLContext
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
-import org.springframework.web.server.ResponseStatusException
 import kotlin.uuid.Uuid
 
 @Service
@@ -23,7 +23,7 @@ class CaseNoteService(private val context: DSLContext) {
                 .where(MODERATION_CASE.ID.eq(caseId))
         )
         if (!caseExists) {
-            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Moderation case not found")
+            throw ResourceNotFoundException("Moderation case not found")
         }
 
         return context
@@ -37,10 +37,10 @@ class CaseNoteService(private val context: DSLContext) {
         val case = context
             .selectFrom(MODERATION_CASE)
             .where(MODERATION_CASE.ID.eq(caseId))
-            .fetchOne() ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Moderation case not found")
+            .fetchOne() ?: throw ResourceNotFoundException("Moderation case not found")
 
         if (case.status != CaseStatus.OPEN) {
-            throw ResponseStatusException(HttpStatus.CONFLICT, "Moderation case is not open")
+            throw ResourceConflictException("Moderation case is not open")
         }
 
         val record = context

@@ -12,6 +12,7 @@ import net.neruxvace.naughtylist.backend.jooq.tables.references.PUNISHMENT
 import net.neruxvace.naughtylist.backend.jooq.tables.references.REASON
 import net.neruxvace.naughtylist.backend.persistence.required
 import net.neruxvace.naughtylist.backend.punishment.request.CreatePunishmentRequest
+import net.neruxvace.naughtylist.backend.punishment.request.RevokePunishmentRequest
 import org.jooq.Condition
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
@@ -53,7 +54,6 @@ class PunishmentService(private val context: DSLContext) {
         .where(PUNISHMENT.ID.eq(id))
         .fetchOne()?.let(::map)
 
-
     @Transactional
     fun create(request: CreatePunishmentRequest, actorUuid: Uuid): PunishmentResponse {
         val startsAt = request.startsAt ?: LocalDateTime.now()
@@ -79,6 +79,30 @@ class PunishmentService(private val context: DSLContext) {
             .fetchOne() ?: error("Failed to create punishment")
 
         return map(record)
+    }
+
+    @Transactional
+    fun revoke(id: Long, request: RevokePunishmentRequest, actorUuid: Uuid): PunishmentResponse? {
+        val punishment = context
+            .selectFrom(PUNISHMENT)
+            .where(PUNISHMENT.ID.eq(id))
+            .forUpdate()
+            .fetchOne() ?: return null
+
+        if (punishment.revokedAt != null) {
+            throw ResourceConflictException("Punishment is already revoked")
+        }
+
+        val updated = context
+            .update(PUNISHMENT)
+            .set(PUNISHMENT.REVOKED_AT, LocalDateTime.now())
+            .set(PUNISHMENT.REVOKED_BY, actorUuid)
+            .set(PUNISHMENT.REVOKE_REASON, request.reason)
+            .where(PUNISHMENT.ID.eq(id))
+            .returning()
+            .fetchOne() ?: error("Failed to revoke punishment")
+
+        return map(updated)
     }
 
     private fun requirePlayer(uuid: Uuid) {

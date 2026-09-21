@@ -117,3 +117,99 @@ Authorization: Bearer {{$auth.token("server")}}
 
 GET {{baseUrl}}/punishments?caseId={{investigationCaseId}}
 Authorization: Bearer {{$auth.token("server")}}
+
+###
+
+### Issue punishment without permissions
+# @name issuePunishmentWithoutPermissions
+
+POST {{baseUrl}}/punishments
+Authorization: Bearer {{emptyActorToken}}
+Content-Type: application/json
+
+{
+  "type": "WARNING",
+  "playerUuid": "{{testTargetUuid}}",
+  "reasonId": {{reasonId}}
+}
+
+> {%
+    client.test("Punishment issuing requires permission", function () {
+        client.assert(response.status === 403, "Expected HTTP 403");
+    });
+%}
+
+###
+
+### Issue punishment with invalid period
+# @name issuePunishmentWithInvalidPeriod
+
+POST {{baseUrl}}/punishments
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "type": "MUTE",
+  "playerUuid": "{{testTargetUuid}}",
+  "reasonId": {{reasonId}},
+  "startsAt": "2030-01-02T00:00:00",
+  "expiresAt": "2030-01-01T00:00:00"
+}
+
+> {%
+    client.test("Invalid punishment period is rejected", function () {
+        client.assert(response.status === 400, "Expected HTTP 400");
+        client.assert(
+            response.body.detail === "The end of a punishment must be after its start",
+            "Expected period validation error"
+        );
+    });
+%}
+
+###
+
+### Issue punishment for mismatching case target
+# @name issuePunishmentForMismatchingCaseTarget
+
+POST {{baseUrl}}/punishments
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "type": "BAN",
+  "playerUuid": "{{testPlayerUuid}}",
+  "reasonId": {{reasonId}},
+  "caseId": {{investigationCaseId}}
+}
+
+> {%
+    client.test("Mismatching case target is rejected", function () {
+        client.assert(response.status === 409, "Expected HTTP 409");
+        client.assert(
+            response.body.detail === "Moderation case target does not match punishment target",
+            "Expected case target conflict"
+        );
+    });
+%}
+
+###
+
+### Issue punishment with unknown reason
+# @name issuePunishmentWithUnknownReason
+
+POST {{baseUrl}}/punishments
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "type": "WARNING",
+  "playerUuid": "{{testTargetUuid}}",
+  "reasonId": {{missingId}}
+}
+
+> {%
+    client.test("Unknown punishment reason is rejected", function () {
+        client.assert(response.status === 404, "Expected HTTP 404");
+        client.assert(response.body.detail === "Reason not found", "Expected missing reason error");
+    });
+%}

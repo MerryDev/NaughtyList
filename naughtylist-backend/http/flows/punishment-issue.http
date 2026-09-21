@@ -16,6 +16,9 @@ run #createActorToken
 
 ###
 
+run #createActorTokenWithoutPermissions
+###
+
 run #createReason
 
 ###
@@ -29,3 +32,19 @@ run #issuePunishment
 ###
 
 run #getIssuedPunishment
+
+###
+
+run #issuePunishmentWithoutPermissions
+
+###
+
+run #issuePunishmentWithInvalidPeriod
+
+###
+
+run #issuePunishmentForMismatchingCaseTarget
+
+###
+
+run #issuePunishmentWithUnknownReason

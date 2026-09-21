@@ -13,6 +13,9 @@ run #syncTargetPlayer
 ###
 
 run #createActorToken
+###
+
+run #createActorTokenWithoutPermissions
 
 ###
 
@@ -33,3 +36,19 @@ run #revokePunishment
 ###
 
 run #getRevokedPunishment
+
+###
+
+run #revokePunishmentAgain
+
+###
+
+run #revokeUnknownPunishment
+
+###
+
+run #revokePunishmentWithoutReason
+
+###
+
+run #revokePunishmentWithoutPermissions

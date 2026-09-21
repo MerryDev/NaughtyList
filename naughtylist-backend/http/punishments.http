@@ -264,3 +264,92 @@ Authorization: Bearer {{$auth.token("server")}}
         );
     });
 %}
+
+###
+
+### Revoke punishment again
+# @name revokePunishmentAgain
+
+POST {{baseUrl}}/punishments/{{punishmentId}}/revoke
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "reason": "Second revocation"
+}
+
+> {%
+    client.test("Revoked punishment cannot be revoked again", function () {
+        client.assert(response.status === 409, "Expected HTTP 409");
+        client.assert(
+            response.body.detail === "Punishment is already revoked",
+            "Expected revocation conflict"
+        );
+    });
+%}
+
+###
+
+### Revoke unknown punishment
+# @name revokeUnknownPunishment
+
+POST {{baseUrl}}/punishments/{{missingId}}/revoke
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "reason": "Unknown punishment"
+}
+
+> {%
+    client.test("Unknown punishment cannot be revoked", function () {
+        client.assert(response.status === 404, "Expected HTTP 404");
+        client.assert(
+            response.body.detail === "Punishment not found",
+            "Expected missing punishment error"
+        );
+    });
+%}
+
+###
+
+### Revoke punishment without reason
+# @name revokePunishmentWithoutReason
+
+POST {{baseUrl}}/punishments/{{punishmentId}}/revoke
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "reason": "   "
+}
+
+> {%
+    client.test("Empty revocation reason is rejected", function () {
+        client.assert(response.status === 400, "Expected HTTP 400");
+        client.assert(
+            response.body.detail === "Request validation failed",
+            "Expected request validation error"
+        );
+        client.assert(response.body.errors.reason != null, "Expected reason field error");
+    });
+%}
+
+###
+
+### Revoke punishment without permissions
+# @name revokePunishmentWithoutPermissions
+
+POST {{baseUrl}}/punishments/{{punishmentId}}/revoke
+Authorization: Bearer {{emptyActorToken}}
+Content-Type: application/json
+
+{
+  "reason": "Unauthorized revocation"
+}
+
+> {%
+    client.test("Punishment revocation requires permission", function () {
+        client.assert(response.status === 403, "Expected HTTP 403");
+    });
+%}

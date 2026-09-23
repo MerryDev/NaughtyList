@@ -1,0 +1,50 @@
+import ../players.http
+import ../auth.http
+import ../reasons.http
+import ../cases.http
+import ../punishments.http
+
+run #syncTestPlayer
+
+###
+
+run #syncTargetPlayer
+
+###
+
+run #createActorToken
+
+###
+
+run #createActorTokenWithoutPermissions
+###
+
+run #createReason
+
+###
+
+run #createInvestigationCase
+
+###
+
+run #issuePunishment
+
+###
+
+run #getIssuedPunishment
+
+###
+
+run #issuePunishmentWithoutPermissions
+
+###
+
+run #issuePunishmentWithInvalidPeriod
+
+###
+
+run #issuePunishmentForMismatchingCaseTarget
+
+###
+
+run #issuePunishmentWithUnknownReason

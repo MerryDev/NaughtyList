@@ -90,3 +90,17 @@ Authorization: Bearer {{$auth.token("server")}}
         client.assert(response.status === 404, "Expected HTTP 404");
     });
 %}
+
+###
+
+### Get unknown punishment
+# @name getUnknownPunishment
+
+GET {{baseUrl}}/punishments/{{missingId}}
+Authorization: Bearer {{$auth.token("server")}}
+
+> {%
+    client.test("Unknown punishment returns 404", function () {
+        client.assert(response.status === 404, "Expected HTTP 404");
+    });
+%}

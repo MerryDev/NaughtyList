@@ -1,0 +1,210 @@
+### Sync test player
+# @name syncTestPlayer
+
+PUT {{baseUrl}}/players/{{testPlayerUuid}}
+Authorization: Bearer {{$auth.token("server")}}
+Content-Type: application/json
+
+{
+  "name": "{{testPlayerName}}"
+}
+
+###
+
+### Sync target player
+# @name syncTargetPlayer
+
+PUT {{baseUrl}}/players/{{testTargetUuid}}
+Authorization: Bearer {{$auth.token("server")}}
+Content-Type: application/json
+
+{
+  "name": "{{testTargetName}}"
+}
+
+###
+
+### Get test player by UUID
+# @name getTestPlayer
+
+GET {{baseUrl}}/players/{{testPlayerUuid}}
+Authorization: Bearer {{$auth.token("server")}}
+
+###
+
+### Get target player by UUID
+# @name getTargetPlayer
+
+GET {{baseUrl}}/players/{{testTargetUuid}}
+Authorization: Bearer {{$auth.token("server")}}
+
+###
+
+### Find test player by current name
+# @name findTestPlayerByName
+
+GET {{baseUrl}}/players?name={{testPlayerName}}
+Authorization: Bearer {{$auth.token("server")}}
+
+###
+
+### Get test player name history
+# @name getTestPlayerNameHistory
+
+GET {{baseUrl}}/players/{{testPlayerUuid}}/names
+Authorization: Bearer {{$auth.token("server")}}
+
+###
+
+### Set Discord ID
+# @name setDiscordId
+
+PUT {{baseUrl}}/players/{{testPlayerUuid}}/discord
+Authorization: Bearer {{$auth.token("server")}}
+Content-Type: application/json
+
+{
+  "discordId": "{{testDiscordId}}"
+}
+
+###
+
+### Remove Discord ID
+# @name removeDiscordId
+
+PUT {{baseUrl}}/players/{{testPlayerUuid}}/discord
+Authorization: Bearer {{$auth.token("server")}}
+Content-Type: application/json
+
+{
+  "discordId": null
+}
+
+###
+
+### Sync assigned acceptance target
+# @name syncAcceptAssignedTarget
+
+PUT {{baseUrl}}/players/{{$random.uuid}}
+Authorization: Bearer {{$auth.token("server")}}
+Content-Type: application/json
+
+{
+  "name": "Assigned{{$random.alphanumeric(8)}}"
+}
+
+> {%
+    client.global.set("acceptAssignedTargetUuid", response.body.uuid);
+%}
+
+###
+
+### Sync automatic acceptance target
+# @name syncAcceptAutoTarget
+
+PUT {{baseUrl}}/players/{{$random.uuid}}
+Authorization: Bearer {{$auth.token("server")}}
+Content-Type: application/json
+
+{
+  "name": "Auto{{$random.alphanumeric(8)}}"
+}
+
+> {%
+    client.global.set("acceptAutoTargetUuid", response.body.uuid);
+%}
+
+###
+
+### Sync acceptance conflict target
+# @name syncAcceptConflictTarget
+
+PUT {{baseUrl}}/players/{{$random.uuid}}
+Authorization: Bearer {{$auth.token("server")}}
+Content-Type: application/json
+
+{
+  "name": "Conflict{{$random.alphanumeric(8)}}"
+}
+
+> {%
+    client.global.set("acceptConflictTargetUuid", response.body.uuid);
+%}
+
+###
+
+### Sync name-conflict candidate
+# @name syncNameConflictPlayer
+
+PUT {{baseUrl}}/players/{{nameConflictPlayerUuid}}
+Authorization: Bearer {{$auth.token("server")}}
+Content-Type: application/json
+
+{
+  "name": "{{nameConflictOriginalName}}"
+}
+
+> {%
+    client.test("Name-conflict candidate is synchronized", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+        client.assert(
+            response.body.name === client.variables.environment.get("nameConflictOriginalName"),
+            "Expected original candidate name"
+        );
+    });
+%}
+
+###
+
+### Assign an existing current name to another player
+# @name syncDuplicateCurrentName
+
+PUT {{baseUrl}}/players/{{nameConflictPlayerUuid}}
+Authorization: Bearer {{$auth.token("server")}}
+Content-Type: application/json
+
+{
+  "name": "{{nameConflictDuplicateName}}"
+}
+
+> {%
+    client.test("Duplicate current name returns conflict", function () {
+        client.assert(response.status === 409, "Expected HTTP 409");
+    });
+%}
+
+###
+
+### Verify name rollback after conflict
+# @name getNameConflictPlayerAfterConflict
+
+GET {{baseUrl}}/players/{{nameConflictPlayerUuid}}
+Authorization: Bearer {{$auth.token("server")}}
+
+> {%
+    client.test("Original name remains active after conflict", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+        client.assert(
+            response.body.name === client.variables.environment.get("nameConflictOriginalName"),
+            "Expected original name to remain active"
+        );
+    });
+%}
+
+###
+
+### Resolve case-insensitive current name
+# @name findOriginalPlayerByCaseInsensitiveName
+
+GET {{baseUrl}}/players?name={{nameConflictDuplicateName}}
+Authorization: Bearer {{$auth.token("server")}}
+
+> {%
+    client.test("Case-insensitive lookup resolves the original player", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+        client.assert(
+            response.body.uuid === client.variables.environment.get("testPlayerUuid"),
+            "Expected the original name owner"
+        );
+    });
+%}

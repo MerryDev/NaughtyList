@@ -1,0 +1,46 @@
+import ../players.http
+import ../auth.http
+import ../cases.http
+import ../validation.http
+
+run #syncTestPlayer
+
+###
+
+run #syncTargetPlayer
+
+###
+
+run #createActorToken
+
+###
+
+run #createInvestigationCase
+
+###
+
+run #getUnknownCase
+
+###
+
+run #getUnknownCaseNotes
+
+###
+
+run #getUnknownCaseEvidence
+
+###
+
+run #addEmptyCaseNote
+
+###
+
+run #addEmptyCaseEvidence
+
+###
+
+run #getUnknownReport
+
+###
+
+run #getUnknownPunishment

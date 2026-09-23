@@ -1,0 +1,302 @@
+### Create report
+# @name createReport
+
+POST {{baseUrl}}/reports
+Authorization: Bearer {{$auth.token("server")}}
+Content-Type: application/json
+
+{
+  "reporterUuid": "{{testPlayerUuid}}",
+  "targetUuid": "{{testTargetUuid}}",
+  "reasonId": {{reasonId}},
+  "replayId": "{{testReplayId}}"
+}
+
+> {%
+    client.global.set("investigationReportId", response.body.id);
+%}
+
+###
+
+### Create report without replay
+# @name createReportWithoutReplay
+
+POST {{baseUrl}}/reports
+Authorization: Bearer {{$auth.token("server")}}
+Content-Type: application/json
+
+{
+  "reporterUuid": "{{testPlayerUuid}}",
+  "targetUuid": "{{testTargetUuid}}",
+  "reasonId": {{reasonId}}
+}
+
+> {%
+    client.global.set("reportWithoutReplayId", response.body.id);
+%}
+
+###
+
+### Get created report
+# @name getReport
+
+GET {{baseUrl}}/reports/{{investigationReportId}}
+Authorization: Bearer {{$auth.token("server")}}
+
+###
+
+### Get all reports
+# @name getReports
+
+GET {{baseUrl}}/reports
+Authorization: Bearer {{$auth.token("server")}}
+
+###
+
+### Get open reports
+# @name getOpenReports
+
+GET {{baseUrl}}/reports?status=OPEN
+Authorization: Bearer {{$auth.token("server")}}
+
+###
+
+### Get reports for target
+# @name getReportsForTarget
+
+GET {{baseUrl}}/reports?targetUuid={{testTargetUuid}}
+Authorization: Bearer {{$auth.token("server")}}
+
+###
+
+### Get reports from server
+# @name getReportsFromServer
+
+GET {{baseUrl}}/reports?serverName={{apiClientId}}
+Authorization: Bearer {{$auth.token("server")}}
+
+###
+
+### Get open reports for target
+# @name getOpenReportsForTarget
+
+GET {{baseUrl}}/reports?status=OPEN&targetUuid={{testTargetUuid}}
+Authorization: Bearer {{$auth.token("server")}}
+
+###
+
+### Get open reports for target on server
+# @name getOpenReportsForTargetOnServer
+
+GET {{baseUrl}}/reports?status=OPEN&targetUuid={{testTargetUuid}}&serverName={{apiClientId}}
+Authorization: Bearer {{$auth.token("server")}}
+
+###
+
+### Assign report to investigation case
+# @name assignReportToCase
+
+PUT {{baseUrl}}/reports/{{investigationReportId}}/case
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "caseId": {{investigationCaseId}}
+}
+
+###
+
+### Assign report to prepared acceptance case
+# @name assignAssignedAcceptReportToCase
+
+PUT {{baseUrl}}/reports/{{assignedAcceptReportId}}/case
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "caseId": {{assignedAcceptCaseId}}
+}
+
+###
+
+### Remove report from investigation case
+# @name removeReportFromCase
+
+PUT {{baseUrl}}/reports/{{investigationReportId}}/case
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "caseId": null
+}
+
+###
+
+### Create report for close flow
+# @name createCloseReport
+
+POST {{baseUrl}}/reports
+Authorization: Bearer {{$auth.token("server")}}
+Content-Type: application/json
+
+{
+  "reporterUuid": "{{testPlayerUuid}}",
+  "targetUuid": "{{testTargetUuid}}",
+  "reasonId": {{reasonId}},
+  "replayId": "{{testReplayId}}"
+}
+
+> {%
+    client.global.set("closeReportId", response.body.id);
+%}
+
+###
+
+### Close report
+# @name closeReport
+
+POST {{baseUrl}}/reports/{{closeReportId}}/close
+Authorization: Bearer {{actorToken}}
+
+###
+
+### Create report for assigned acceptance
+# @name createAssignedAcceptReport
+
+POST {{baseUrl}}/reports
+Authorization: Bearer {{$auth.token("server")}}
+Content-Type: application/json
+
+{
+  "reporterUuid": "{{testPlayerUuid}}",
+  "targetUuid": "{{acceptAssignedTargetUuid}}",
+  "reasonId": {{reasonId}}
+}
+
+> {%
+    client.global.set("assignedAcceptReportId", response.body.id);
+%}
+
+###
+
+### Create report for automatic acceptance
+# @name createAutoAcceptReport
+
+POST {{baseUrl}}/reports
+Authorization: Bearer {{$auth.token("server")}}
+Content-Type: application/json
+
+{
+  "reporterUuid": "{{testPlayerUuid}}",
+  "targetUuid": "{{acceptAutoTargetUuid}}",
+  "reasonId": {{reasonId}}
+}
+
+> {%
+    client.global.set("autoAcceptReportId", response.body.id);
+%}
+
+###
+
+### Create report for acceptance conflict
+# @name createAcceptConflictReport
+
+POST {{baseUrl}}/reports
+Authorization: Bearer {{$auth.token("server")}}
+Content-Type: application/json
+
+{
+  "reporterUuid": "{{testPlayerUuid}}",
+  "targetUuid": "{{acceptConflictTargetUuid}}",
+  "reasonId": {{reasonId}}
+}
+
+> {%
+    client.global.set("acceptConflictReportId", response.body.id);
+%}
+
+###
+
+### Accept assigned report
+# @name acceptAssignedReport
+
+POST {{baseUrl}}/reports/{{assignedAcceptReportId}}/accept
+Authorization: Bearer {{actorToken}}
+
+> {%
+    client.test("Assigned report is accepted", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+        client.assert(response.body.status === "ACCEPTED", "Expected ACCEPTED status");
+        client.assert(response.body.caseId != null, "Expected report to have a case");
+    });
+%}
+
+###
+
+### Accept report with automatically resolved case
+# @name acceptAutoReport
+
+POST {{baseUrl}}/reports/{{autoAcceptReportId}}/accept
+Authorization: Bearer {{actorToken}}
+
+> {%
+    client.test("Report is accepted with an automatically resolved case", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+        client.assert(response.body.status === "ACCEPTED", "Expected ACCEPTED status");
+        client.assert(response.body.caseId != null, "Expected report to have a case");
+    });
+%}
+
+###
+
+### Accept report with ambiguous cases
+# @name acceptReportExpectingConflict
+
+POST {{baseUrl}}/reports/{{acceptConflictReportId}}/accept
+Authorization: Bearer {{actorToken}}
+
+> {%
+    client.test("Multiple open cases return 409", function () {
+        client.assert(response.status === 409, "Expected HTTP 409");
+    });
+%}
+
+###
+
+### Close investigation report
+# @name closeInvestigationReport
+
+POST {{baseUrl}}/reports/{{investigationReportId}}/close
+Authorization: Bearer {{actorToken}}
+
+> {%
+    client.test("Report is closed", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+        client.assert(response.body.status === "CLOSED", "Expected CLOSED status");
+    });
+%}
+
+###
+
+### List reports by case
+# @name getReportsByCase
+
+GET {{baseUrl}}/reports?caseId={{investigationCaseId}}
+Authorization: Bearer {{$auth.token("server")}}
+
+> {%
+    client.test("Reports are filtered by case", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+        client.assert(Array.isArray(response.body), "Expected response array");
+        client.assert(response.body.length > 0, "Expected at least one report");
+
+        const expectedCaseId = Number(client.global.get("investigationCaseId"));
+
+        response.body.forEach(function (report) {
+            client.assert(
+                report.caseId === expectedCaseId,
+                "Expected every report to belong to case " + expectedCaseId
+            );
+        });
+    });
+%}

@@ -1,0 +1,26 @@
+import ../players.http
+import ../auth.http
+import ../reasons.http
+import ../reports.http
+
+run #syncTestPlayer
+
+###
+
+run #syncAcceptAutoTarget
+
+###
+
+run #createActorToken
+
+###
+
+run #createReason
+
+###
+
+run #createAutoAcceptReport
+
+###
+
+run #acceptAutoReport

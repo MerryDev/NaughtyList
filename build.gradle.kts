@@ -3,7 +3,7 @@ plugins {
 }
 
 allprojects {
-    group = "wtf.spaghetti"
+    group = "net.neruxvace"
     version = project.property("version") as String
 
     repositories {
@@ -13,8 +13,7 @@ allprojects {
 }
 
 subprojects {
-    apply<JavaPlugin>()
-
+    plugins.apply("java")
     tasks {
         java {
             toolchain.languageVersion.set(JavaLanguageVersion.of(25))

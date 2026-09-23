@@ -1,0 +1,355 @@
+### Issue punishment
+# @name issuePunishment
+
+POST {{baseUrl}}/punishments
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "type": "MUTE",
+  "playerUuid": "{{testTargetUuid}}",
+  "reasonId": {{reasonId}},
+  "caseId": {{investigationCaseId}}
+}
+
+> {%
+    client.test("Punishment is issued", function () {
+        client.assert(response.status === 201, "Expected HTTP 201");
+        client.assert(response.body.type === "MUTE", "Expected MUTE punishment");
+        client.assert(
+            response.body.playerUuid === client.variables.environment.get("testTargetUuid"),
+            "Expected punishment target"
+        );
+        client.assert(
+            response.body.issuedBy === client.variables.environment.get("testPlayerUuid"),
+            "Expected authenticated actor as issuer"
+        );
+        client.assert(response.body.expiresAt == null, "Expected permanent punishment");
+    });
+
+    client.global.set("punishmentId", response.body.id);
+%}
+
+###
+
+### Get issued punishment
+# @name getIssuedPunishment
+
+GET {{baseUrl}}/punishments/{{punishmentId}}
+Authorization: Bearer {{$auth.token("server")}}
+
+> {%
+    client.test("Issued punishment can be retrieved", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+        client.assert(response.body.id != null, "Expected punishment ID");
+    });
+%}
+
+###
+
+### Get all punishments
+# @name getPunishments
+
+GET {{baseUrl}}/punishments
+Authorization: Bearer {{$auth.token("server")}}
+
+> {%
+    client.test("Punishments are returned", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+        client.assert(Array.isArray(response.body), "Expected response array");
+    });
+%}
+
+###
+
+### Get punishments for player
+# @name getPunishmentsForPlayer
+
+GET {{baseUrl}}/punishments?playerUuid={{testPlayerUuid}}
+Authorization: Bearer {{$auth.token("server")}}
+
+> {%
+    client.test("Punishments are filtered by player", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+        client.assert(Array.isArray(response.body), "Expected response array");
+
+        response.body.forEach(function (punishment) {
+            client.assert(
+                punishment.playerUuid === client.variables.environment.get("testPlayerUuid"),
+                "Expected every punishment to belong to the test player"
+            );
+        });
+    });
+%}
+
+###
+
+### Get active bans for player
+# @name getActiveBansForPlayer
+
+GET {{baseUrl}}/punishments?playerUuid={{testPlayerUuid}}&type=BAN&active=true
+Authorization: Bearer {{$auth.token("server")}}
+
+> {%
+    client.test("Active bans are filtered correctly", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+        client.assert(Array.isArray(response.body), "Expected response array");
+
+        response.body.forEach(function (punishment) {
+            client.assert(punishment.type === "BAN", "Expected BAN punishment");
+            client.assert(punishment.revokedAt == null, "Expected active punishment");
+        });
+    });
+%}
+
+###
+
+### Get punishments for reason
+# @name getPunishmentsForReason
+
+GET {{baseUrl}}/punishments?reasonId={{reasonId}}
+Authorization: Bearer {{$auth.token("server")}}
+
+###
+
+### Get punishments for moderation case
+# @name getPunishmentsForCase
+
+GET {{baseUrl}}/punishments?caseId={{investigationCaseId}}
+Authorization: Bearer {{$auth.token("server")}}
+
+###
+
+### Issue punishment without permissions
+# @name issuePunishmentWithoutPermissions
+
+POST {{baseUrl}}/punishments
+Authorization: Bearer {{emptyActorToken}}
+Content-Type: application/json
+
+{
+  "type": "WARNING",
+  "playerUuid": "{{testTargetUuid}}",
+  "reasonId": {{reasonId}}
+}
+
+> {%
+    client.test("Punishment issuing requires permission", function () {
+        client.assert(response.status === 403, "Expected HTTP 403");
+    });
+%}
+
+###
+
+### Issue punishment with invalid period
+# @name issuePunishmentWithInvalidPeriod
+
+POST {{baseUrl}}/punishments
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "type": "MUTE",
+  "playerUuid": "{{testTargetUuid}}",
+  "reasonId": {{reasonId}},
+  "startsAt": "2030-01-02T00:00:00",
+  "expiresAt": "2030-01-01T00:00:00"
+}
+
+> {%
+    client.test("Invalid punishment period is rejected", function () {
+        client.assert(response.status === 400, "Expected HTTP 400");
+        client.assert(
+            response.body.detail === "The end of a punishment must be after its start",
+            "Expected period validation error"
+        );
+    });
+%}
+
+###
+
+### Issue punishment for mismatching case target
+# @name issuePunishmentForMismatchingCaseTarget
+
+POST {{baseUrl}}/punishments
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "type": "BAN",
+  "playerUuid": "{{testPlayerUuid}}",
+  "reasonId": {{reasonId}},
+  "caseId": {{investigationCaseId}}
+}
+
+> {%
+    client.test("Mismatching case target is rejected", function () {
+        client.assert(response.status === 409, "Expected HTTP 409");
+        client.assert(
+            response.body.detail === "Moderation case target does not match punishment target",
+            "Expected case target conflict"
+        );
+    });
+%}
+
+###
+
+### Issue punishment with unknown reason
+# @name issuePunishmentWithUnknownReason
+
+POST {{baseUrl}}/punishments
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "type": "WARNING",
+  "playerUuid": "{{testTargetUuid}}",
+  "reasonId": {{missingId}}
+}
+
+> {%
+    client.test("Unknown punishment reason is rejected", function () {
+        client.assert(response.status === 404, "Expected HTTP 404");
+        client.assert(response.body.detail === "Reason not found", "Expected missing reason error");
+    });
+%}
+
+###
+
+### Revoke punishment
+# @name revokePunishment
+
+POST {{baseUrl}}/punishments/{{punishmentId}}/revoke
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "reason": "Punishment issued in error"
+}
+
+> {%
+    client.test("Punishment is revoked", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+        client.assert(response.body.revokedAt != null, "Expected revocation timestamp");
+        client.assert(
+            response.body.revokedBy === client.variables.environment.get("testPlayerUuid"),
+            "Expected authenticated actor as revoker"
+        );
+        client.assert(
+            response.body.revokeReason === "Punishment issued in error",
+            "Expected revocation reason"
+        );
+    });
+%}
+
+###
+
+### Get revoked punishment
+# @name getRevokedPunishment
+
+GET {{baseUrl}}/punishments/{{punishmentId}}
+Authorization: Bearer {{$auth.token("server")}}
+
+> {%
+    client.test("Revocation is persisted", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+        client.assert(response.body.revokedAt != null, "Expected persisted revocation timestamp");
+        client.assert(
+            response.body.revokedBy === client.variables.environment.get("testPlayerUuid"),
+            "Expected persisted revoker"
+        );
+        client.assert(
+            response.body.revokeReason === "Punishment issued in error",
+            "Expected persisted revocation reason"
+        );
+    });
+%}
+
+###
+
+### Revoke punishment again
+# @name revokePunishmentAgain
+
+POST {{baseUrl}}/punishments/{{punishmentId}}/revoke
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "reason": "Second revocation"
+}
+
+> {%
+    client.test("Revoked punishment cannot be revoked again", function () {
+        client.assert(response.status === 409, "Expected HTTP 409");
+        client.assert(
+            response.body.detail === "Punishment is already revoked",
+            "Expected revocation conflict"
+        );
+    });
+%}
+
+###
+
+### Revoke unknown punishment
+# @name revokeUnknownPunishment
+
+POST {{baseUrl}}/punishments/{{missingId}}/revoke
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "reason": "Unknown punishment"
+}
+
+> {%
+    client.test("Unknown punishment cannot be revoked", function () {
+        client.assert(response.status === 404, "Expected HTTP 404");
+        client.assert(
+            response.body.detail === "Punishment not found",
+            "Expected missing punishment error"
+        );
+    });
+%}
+
+###
+
+### Revoke punishment without reason
+# @name revokePunishmentWithoutReason
+
+POST {{baseUrl}}/punishments/{{punishmentId}}/revoke
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "reason": "   "
+}
+
+> {%
+    client.test("Empty revocation reason is rejected", function () {
+        client.assert(response.status === 400, "Expected HTTP 400");
+        client.assert(
+            response.body.detail === "Request validation failed",
+            "Expected request validation error"
+        );
+        client.assert(response.body.errors.reason != null, "Expected reason field error");
+    });
+%}
+
+###
+
+### Revoke punishment without permissions
+# @name revokePunishmentWithoutPermissions
+
+POST {{baseUrl}}/punishments/{{punishmentId}}/revoke
+Authorization: Bearer {{emptyActorToken}}
+Content-Type: application/json
+
+{
+  "reason": "Unauthorized revocation"
+}
+
+> {%
+    client.test("Punishment revocation requires permission", function () {
+        client.assert(response.status === 403, "Expected HTTP 403");
+    });
+%}

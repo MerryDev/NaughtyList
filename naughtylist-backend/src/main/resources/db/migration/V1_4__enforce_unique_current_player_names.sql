@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX uq_player_name_history_active_name ON player_name_history (LOWER(name)) WHERE valid_until IS NULL;

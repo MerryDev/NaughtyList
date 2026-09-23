@@ -1,0 +1,107 @@
+### Create reason
+# @name createReason
+
+POST {{baseUrl}}/reasons
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "key": "HTTP_TEST_{{$random.uuid}}",
+  "name": "HTTP Test Reason",
+  "description": "Reason created by HTTP client integration flow"
+}
+
+> {%
+    client.global.set("reasonId", response.body.id);
+%}
+
+###
+
+### Get created reason
+# @name getReason
+
+GET {{baseUrl}}/reasons/{{reasonId}}
+Authorization: Bearer {{$auth.token("server")}}
+
+###
+
+### Get all reasons
+# @name getReasons
+
+GET {{baseUrl}}/reasons
+Authorization: Bearer {{$auth.token("server")}}
+
+###
+
+### Update created reason
+# @name updateReason
+
+PATCH {{baseUrl}}/reasons/{{reasonId}}
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "name": "Updated HTTP Test Reason",
+  "description": "Updated by HTTP client integration flow",
+  "enabled": true
+}
+
+###
+
+### Disable created reason
+# @name disableReason
+
+PATCH {{baseUrl}}/reasons/{{reasonId}}
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "enabled": false
+}
+
+###
+
+### Enable created reason
+# @name enableReason
+
+PATCH {{baseUrl}}/reasons/{{reasonId}}
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "enabled": true
+}
+
+###
+
+### Read reasons without permissions
+# @name getReasonsWithoutPermissions
+
+GET {{baseUrl}}/reasons
+Authorization: Bearer {{emptyActorToken}}
+
+> {%
+    client.test("Actor without permissions can use authenticated read endpoint", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+    });
+%}
+
+###
+
+### Create reason without permissions
+# @name createReasonWithoutPermissions
+
+POST {{baseUrl}}/reasons
+Authorization: Bearer {{emptyActorToken}}
+Content-Type: application/json
+
+{
+  "key": "UNAUTHORIZED_{{$random.uuid}}",
+  "name": "Unauthorized reason"
+}
+
+> {%
+    client.test("Actor without permissions cannot create reasons", function () {
+        client.assert(response.status === 403, "Expected HTTP 403");
+    });
+%}

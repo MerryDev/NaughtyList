@@ -152,3 +152,22 @@ Authorization: Bearer {{$auth.token("server")}}
         );
     });
 %}
+
+###
+
+### Activate escalation policy version
+# @name activateEscalationPolicyVersion
+
+POST {{baseUrl}}/escalation-policies/{{escalationPolicyId}}/versions/{{escalationVersionId}}/activate
+Authorization: Bearer {{actorToken}}
+
+> {%
+    client.test("Escalation policy version is active", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+        client.assert(response.body.active === true, "Expected active version");
+        client.assert(
+            String(response.body.id) === String(client.global.get("escalationVersionId")),
+            "Expected requested version"
+        );
+    });
+%}

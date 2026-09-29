@@ -67,6 +67,18 @@ class EscalationPolicyVersionService(private val context: DSLContext) {
         return version.toResponse(steps)
     }
 
+    fun findActive(policyId: Long): EscalationPolicyVersionResponse? {
+        val activeVersionId = context
+            .selectFrom(ESCALATION_POLICY_VERSION)
+            .where(
+                ESCALATION_POLICY_VERSION.POLICY_ID.eq(policyId)
+                    .and(ESCALATION_POLICY_VERSION.ACTIVE.isTrue)
+            )
+            .fetchOne()?.id ?: return null
+
+        return findById(policyId, activeVersionId)
+    }
+
     @Transactional
     fun create(policyId: Long, request: CreateEscalationPolicyVersionRequest): EscalationPolicyVersionResponse {
         request.validateForCreation()

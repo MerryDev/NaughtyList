@@ -111,3 +111,22 @@ Content-Type: application/json
 
     client.global.set("escalationVersionId", response.body.id);
 %}
+
+###
+
+### Get created escalation policy version
+# @name getEscalationPolicyVersion
+
+GET {{baseUrl}}/escalation-policies/{{escalationPolicyId}}/versions/{{escalationVersionId}}
+Authorization: Bearer {{$auth.token("server")}}
+
+> {%
+    client.test("Escalation policy version is returned", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+        client.assert(
+            String(response.body.id) === String(client.global.get("escalationVersionId")),
+            "Expected requested version"
+        );
+        client.assert(response.body.steps.length === 2, "Expected both steps");
+    });
+%}

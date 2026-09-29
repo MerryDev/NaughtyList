@@ -109,4 +109,36 @@ class EscalationPolicyVersionService(private val context: DSLContext) {
         return findById(policyId, versionId) ?: error("Failed to load created escalation policy version")
     }
 
+    @Transactional
+    fun activate(policyId: Long, versionId: Long): EscalationPolicyVersionResponse? {
+        context.selectFrom(ESCALATION_POLICY)
+            .where(ESCALATION_POLICY.ID.eq(policyId))
+            .forUpdate()
+            .fetchOne() ?: return null
+
+        val version = context
+            .selectFrom(ESCALATION_POLICY_VERSION)
+            .where(
+                ESCALATION_POLICY_VERSION.ID.eq(versionId)
+                    .and(ESCALATION_POLICY_VERSION.POLICY_ID.eq(policyId))
+            )
+            .fetchOne() ?: return null
+
+        if (version.active != true) {
+            context.update(ESCALATION_POLICY_VERSION)
+                .set(ESCALATION_POLICY_VERSION.ACTIVE, false)
+                .where(
+                    ESCALATION_POLICY_VERSION.POLICY_ID.eq(policyId)
+                        .and(ESCALATION_POLICY_VERSION.ACTIVE.isTrue)
+                )
+                .execute()
+
+            context.update(ESCALATION_POLICY_VERSION)
+                .set(ESCALATION_POLICY_VERSION.ACTIVE, true)
+                .where(ESCALATION_POLICY_VERSION.ID.eq(versionId))
+                .execute()
+        }
+
+        return findById(policyId, versionId)
+    }
 }

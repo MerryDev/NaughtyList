@@ -72,3 +72,42 @@ Content-Type: application/json
 
     client.global.set("escalationPolicyId", response.body.id);
 %}
+
+###
+
+### Create escalation policy version
+# @name createEscalationPolicyVersion
+
+POST {{baseUrl}}/escalation-policies/{{escalationPolicyId}}/versions
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "lookback": "P30D",
+  "steps": [
+    {
+      "minimumOffenses": 1,
+      "type": "WARNING"
+    },
+    {
+      "minimumOffenses": 2,
+      "type": "MUTE",
+      "duration": "P1D"
+    }
+  ]
+}
+
+> {%
+    client.test("Escalation policy version is created", function () {
+        client.assert(response.status === 201, "Expected HTTP 201");
+        client.assert(response.body.version === 1, "Expected first version");
+        client.assert(response.body.active === false, "Expected inactive version");
+        client.assert(response.body.steps.length === 2, "Expected two steps");
+        client.assert(
+            response.body.steps[0].minimumOffenses === 1,
+            "Expected first offense threshold"
+        );
+    });
+
+    client.global.set("escalationVersionId", response.body.id);
+%}

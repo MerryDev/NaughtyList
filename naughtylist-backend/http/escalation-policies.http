@@ -1,0 +1,48 @@
+### Get all escalation policies
+# @name getEscalationPolicies
+
+GET {{baseUrl}}/escalation-policies
+Authorization: Bearer {{$auth.token("server")}}
+
+> {%
+    client.test("Escalation policies are returned", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+        client.assert(Array.isArray(response.body), "Expected response array");
+    });
+%}
+
+###
+
+### Get escalation policy
+# @name getEscalationPolicy
+
+GET {{baseUrl}}/escalation-policies/{{escalationPolicyId}}
+Authorization: Bearer {{$auth.token("server")}}
+
+> {%
+    client.test("Escalation policy is returned", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+        client.assert(
+            String(response.body.id) === String(client.global.get("escalationPolicyId")),
+            "Expected requested policy"
+        );
+    });
+%}
+
+###
+
+### Get unknown escalation policy
+# @name getUnknownEscalationPolicy
+
+GET {{baseUrl}}/escalation-policies/{{missingId}}
+Authorization: Bearer {{$auth.token("server")}}
+
+> {%
+    client.test("Unknown escalation policy is rejected", function () {
+        client.assert(response.status === 404, "Expected HTTP 404");
+        client.assert(
+            response.body.detail === "Escalation policy not found",
+            "Expected missing policy error"
+        );
+    });
+%}

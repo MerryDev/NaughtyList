@@ -4,7 +4,7 @@ import jakarta.validation.Valid
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.Positive
 import net.neruxvace.naughtylist.backend.jooq.enums.PunishmentType
-import kotlin.time.Duration
+import java.time.Duration
 
 data class CreateEscalationPolicyVersionRequest(
     val lookback: Duration? = null,

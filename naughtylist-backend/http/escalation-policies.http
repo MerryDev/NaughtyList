@@ -171,3 +171,37 @@ Authorization: Bearer {{actorToken}}
         );
     });
 %}
+
+###
+
+### Create second escalation policy version
+# @name createSecondEscalationPolicyVersion
+
+POST {{baseUrl}}/escalation-policies/{{escalationPolicyId}}/versions
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "lookback": "P60D",
+  "steps": [
+    {
+      "minimumOffenses": 1,
+      "type": "WARNING"
+    },
+    {
+      "minimumOffenses": 2,
+      "type": "BAN",
+      "duration": "P7D"
+    }
+  ]
+}
+
+> {%
+    client.test("Second escalation policy version is created inactive", function () {
+        client.assert(response.status === 201, "Expected HTTP 201");
+        client.assert(response.body.version === 2, "Expected version 2");
+        client.assert(response.body.active === false, "Expected inactive version");
+    });
+
+    client.global.set("secondEscalationVersionId", response.body.id);
+%}

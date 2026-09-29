@@ -30,4 +30,12 @@ class EscalationPolicyVersionController(
         @PathVariable policyId: Long,
         @Valid @RequestBody request: CreateEscalationPolicyVersionRequest
     ): EscalationPolicyVersionResponse = service.create(policyId, request)
+
+    @PostMapping("/{versionId}/activate")
+    @PreAuthorize("hasAuthority('SCOPE_escalation:write')")
+    fun activateVersion(
+        @PathVariable policyId: Long,
+        @PathVariable versionId: Long
+    ): EscalationPolicyVersionResponse = service.activate(policyId, versionId)
+        ?: throw ResourceNotFoundException("Escalation policy version not found")
 }

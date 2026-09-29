@@ -17,7 +17,8 @@ Content-Type: application/json
     "naughtylist.reason.write",
     "naughtylist.report.review",
     "naughtylist.case.write",
-    "naughtylist.punishment.write"
+    "naughtylist.punishment.write",
+    "naughtylist.escalation.write"
   ]
 }
 

@@ -290,3 +290,23 @@ Content-Type: application/json
         client.assert(response.body.description == null, "Expected cleared description");
     });
 %}
+
+###
+
+### Disable escalation policy
+# @name disableEscalationPolicy
+
+PATCH {{baseUrl}}/escalation-policies/{{escalationPolicyId}}
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "enabled": false
+}
+
+> {%
+    client.test("Escalation policy is disabled", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+        client.assert(response.body.enabled === false, "Expected disabled policy");
+    });
+%}

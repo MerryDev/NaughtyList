@@ -1,10 +1,11 @@
 package net.neruxvace.naughtylist.backend.escalation
 
+import jakarta.validation.Valid
+import net.neruxvace.naughtylist.backend.escalation.request.CreateEscalationPolicyVersionRequest
 import net.neruxvace.naughtylist.backend.exception.ResourceNotFoundException
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.http.HttpStatus
+import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/api/v1/escalation-policies/{policyId}/versions")
@@ -21,4 +22,12 @@ class EscalationPolicyVersionController(
         @PathVariable versionId: Long
     ): EscalationPolicyVersionResponse = service.findById(policyId, versionId)
         ?: throw ResourceNotFoundException("Escalation policy version not found")
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasAuthority('SCOPE_escalation:write')")
+    fun createVersion(
+        @PathVariable policyId: Long,
+        @Valid @RequestBody request: CreateEscalationPolicyVersionRequest
+    ): EscalationPolicyVersionResponse = service.create(policyId, request)
 }

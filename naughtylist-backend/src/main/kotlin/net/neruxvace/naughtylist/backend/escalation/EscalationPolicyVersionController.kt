@@ -12,6 +12,9 @@ class EscalationPolicyVersionController(
     private val service: EscalationPolicyVersionService
 ) {
 
+    @GetMapping
+    fun getVersions(@PathVariable policyId: Long): List<EscalationPolicyVersionResponse> = service.findAll(policyId)
+
     @GetMapping("/{versionId}")
     fun getVersion(
         @PathVariable policyId: Long,

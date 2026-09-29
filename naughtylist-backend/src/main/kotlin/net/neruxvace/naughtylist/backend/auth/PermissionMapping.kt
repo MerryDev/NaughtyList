@@ -6,7 +6,8 @@ object PermissionMapping {
         "naughtylist.reason.write" to "reason:write",
         "naughtylist.report.review" to "report:review",
         "naughtylist.case.write" to "case:write",
-        "naughtylist.punishment.write" to "punishment:write"
+        "naughtylist.punishment.write" to "punishment:write",
+        "naughtylist.escalation.write" to "escalation:write"
     )
 
     fun scopeFor(permissions: Set<String>): Set<String> = permissions.mapNotNull(mapping::get).toSet()

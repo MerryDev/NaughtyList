@@ -1,0 +1,50 @@
+import ../players.http
+import ../auth.http
+import ../reasons.http
+import ../escalation-policies.http
+
+run #syncTestPlayer
+
+###
+
+run #createActorToken
+
+###
+
+run #createReason
+
+###
+
+run #createEscalationPolicy
+
+###
+
+run #createEscalationPolicyVersion
+
+###
+
+run #activateEscalationPolicyVersion
+
+###
+
+run #syncEscalationRecommendationTarget
+
+###
+
+run #recommendFirstEscalationStep
+
+###
+
+run #issueEscalationRecommendationWarning
+
+###
+
+run #recommendSecondEscalationStep
+
+###
+
+run #revokeEscalationRecommendationWarning
+
+###
+
+run #recommendAfterWarningRevocation

@@ -394,3 +394,20 @@ Content-Type: application/json
         client.assert(response.body.revokedAt != null, "Expected revocation timestamp");
     });
 %}
+
+###
+
+### Recommend after warning revocation
+# @name recommendAfterWarningRevocation
+
+GET {{baseUrl}}/escalation-policies/{{escalationPolicyId}}/recommendation?playerUuid={{escalationRecommendationTargetUuid}}
+Authorization: Bearer {{$auth.token("server")}}
+
+> {%
+    client.test("Revoked warning does not count", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+        client.assert(response.body.offenseNumber === 1, "Expected first offense again");
+        client.assert(response.body.step != null, "Expected escalation step");
+        client.assert(response.body.step.type === "WARNING", "Expected warning again");
+    });
+%}

@@ -374,3 +374,23 @@ Authorization: Bearer {{$auth.token("server")}}
         client.assert(response.body.step.type === "MUTE", "Expected mute");
     });
 %}
+
+###
+
+### Revoke recommendation warning
+# @name revokeEscalationRecommendationWarning
+
+POST {{baseUrl}}/punishments/{{escalationWarningId}}/revoke
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "reason": "Warning revoked for escalation test"
+}
+
+> {%
+    client.test("Recommendation warning is revoked", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+        client.assert(response.body.revokedAt != null, "Expected revocation timestamp");
+    });
+%}

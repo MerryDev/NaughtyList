@@ -332,3 +332,27 @@ Authorization: Bearer {{$auth.token("server")}}
         );
     });
 %}
+
+###
+
+### Issue first offense for recommendation target
+# @name issueEscalationRecommendationWarning
+
+POST {{baseUrl}}/punishments
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "type": "WARNING",
+  "playerUuid": "{{escalationRecommendationTargetUuid}}",
+  "reasonId": {{reasonId}}
+}
+
+> {%
+    client.test("First offense is recorded", function () {
+        client.assert(response.status === 201, "Expected HTTP 201");
+        client.assert(response.body.type === "WARNING", "Expected warning");
+    });
+
+    client.global.set("escalationWarningId", response.body.id);
+%}

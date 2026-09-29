@@ -356,3 +356,21 @@ Content-Type: application/json
 
     client.global.set("escalationWarningId", response.body.id);
 %}
+
+###
+
+### Recommend second escalation step
+# @name recommendSecondEscalationStep
+
+GET {{baseUrl}}/escalation-policies/{{escalationPolicyId}}/recommendation?playerUuid={{escalationRecommendationTargetUuid}}
+Authorization: Bearer {{$auth.token("server")}}
+
+> {%
+    client.test("Second offense recommends a mute", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+        client.assert(response.body.offenseNumber === 2, "Expected second offense");
+        client.assert(response.body.step != null, "Expected escalation step");
+        client.assert(response.body.step.minimumOffenses === 2, "Expected second threshold");
+        client.assert(response.body.step.type === "MUTE", "Expected mute");
+    });
+%}

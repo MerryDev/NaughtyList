@@ -310,3 +310,25 @@ Content-Type: application/json
         client.assert(response.body.enabled === false, "Expected disabled policy");
     });
 %}
+
+###
+
+### Recommend first escalation step
+# @name recommendFirstEscalationStep
+
+GET {{baseUrl}}/escalation-policies/{{escalationPolicyId}}/recommendation?uuid={{escalationRecommendationTargetUuid}}
+Authorization: Bearer {{$auth.token("server")}}
+
+> {%
+    client.test("First offense recommends a warning", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+        client.assert(response.body.offenseNumber === 1, "Expected first offense");
+        client.assert(response.body.step != null, "Expected escalation step");
+        client.assert(response.body.step.type === "WARNING", "Expected warning");
+        client.assert(
+            String(response.body.policyVersionId) ===
+            String(client.global.get("escalationVersionId")),
+            "Expected first active policy version"
+        );
+    });
+%}

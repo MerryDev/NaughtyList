@@ -208,3 +208,25 @@ Authorization: Bearer {{$auth.token("server")}}
         );
     });
 %}
+
+###
+
+### Sync escalation recommendation target
+# @name syncEscalationRecommendationTarget
+
+PUT {{baseUrl}}/players/{{$random.uuid}}
+Authorization: Bearer {{$auth.token("server")}}
+Content-Type: application/json
+
+{
+  "name": "Esc{{$random.alphanumeric(8)}}"
+}
+
+> {%
+    client.test("Recommendation target is created", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+        client.assert(response.body.uuid != null, "Expected player UUID");
+    });
+
+    client.global.set("escalationRecommendationTargetUuid", response.body.uuid);
+%}

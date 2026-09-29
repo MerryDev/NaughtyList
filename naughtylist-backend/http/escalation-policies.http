@@ -205,3 +205,49 @@ Content-Type: application/json
 
     client.global.set("secondEscalationVersionId", response.body.id);
 %}
+
+###
+
+### Activate second escalation policy version
+# @name activateSecondEscalationPolicyVersion
+
+POST {{baseUrl}}/escalation-policies/{{escalationPolicyId}}/versions/{{secondEscalationVersionId}}/activate
+Authorization: Bearer {{actorToken}}
+
+> {%
+    client.test("Second version is activated", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+        client.assert(response.body.active === true, "Expected active version");
+    });
+%}
+
+###
+
+### Verify active escalation policy version
+# @name verifyActiveEscalationPolicyVersion
+
+GET {{baseUrl}}/escalation-policies/{{escalationPolicyId}}/versions
+Authorization: Bearer {{$auth.token("server")}}
+
+> {%
+    client.test("Only the second version is active", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+
+        var active = response.body.filter(function (version) {
+            return version.active === true;
+        });
+        client.assert(active.length === 1, "Expected exactly one active version");
+        client.assert(
+            String(active[0].id) === String(client.global.get("secondEscalationVersionId")),
+            "Expected second version to be active"
+        );
+        client.assert(
+            response.body.some(function (version) {
+                return String(version.id) ===
+                    String(client.global.get("escalationVersionId")) &&
+                    version.active === false;
+            }),
+            "Expected first version to be inactive"
+        );
+    });
+%}

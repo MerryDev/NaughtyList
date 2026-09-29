@@ -265,3 +265,28 @@ Authorization: Bearer {{emptyActorToken}}
         client.assert(response.status === 403, "Expected HTTP 403");
     });
 %}
+
+###
+
+### Update escalation policy details
+# @name updateEscalationPolicyDetails
+
+PATCH {{baseUrl}}/escalation-policies/{{escalationPolicyId}}
+Authorization: Bearer {{actorToken}}
+Content-Type: application/json
+
+{
+  "name": "Updated HTTP Escalation Policy",
+  "description": null
+}
+
+> {%
+    client.test("Policy details are updated", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+        client.assert(
+            response.body.name === "Updated HTTP Escalation Policy",
+            "Expected updated name"
+        );
+        client.assert(response.body.description == null, "Expected cleared description");
+    });
+%}

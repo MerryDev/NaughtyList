@@ -251,3 +251,17 @@ Authorization: Bearer {{$auth.token("server")}}
         );
     });
 %}
+
+###
+
+### Activate version without permission
+# @name activateEscalationPolicyVersionWithoutPermission
+
+POST {{baseUrl}}/escalation-policies/{{escalationPolicyId}}/versions/{{secondEscalationVersionId}}/activate
+Authorization: Bearer {{emptyActorToken}}
+
+> {%
+    client.test("Version activation requires escalation write permission", function () {
+        client.assert(response.status === 403, "Expected HTTP 403");
+    });
+%}

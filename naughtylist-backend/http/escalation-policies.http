@@ -130,3 +130,25 @@ Authorization: Bearer {{$auth.token("server")}}
         client.assert(response.body.steps.length === 2, "Expected both steps");
     });
 %}
+
+###
+
+### Get escalation policy versions
+# @name getEscalationPolicyVersions
+
+GET {{baseUrl}}/escalation-policies/{{escalationPolicyId}}/versions
+Authorization: Bearer {{$auth.token("server")}}
+
+> {%
+    client.test("Created version appears in the list", function () {
+        client.assert(response.status === 200, "Expected HTTP 200");
+        client.assert(Array.isArray(response.body), "Expected response array");
+        client.assert(
+            response.body.some(function (version) {
+                return String(version.id) ===
+                    String(client.global.get("escalationVersionId"));
+            }),
+            "Expected created version in the list"
+        );
+    });
+%}

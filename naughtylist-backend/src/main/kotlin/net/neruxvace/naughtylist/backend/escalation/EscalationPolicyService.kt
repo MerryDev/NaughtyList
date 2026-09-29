@@ -16,12 +16,11 @@ class EscalationPolicyService(private val context: DSLContext) {
     fun findAll(): List<EscalationPolicyResponse> = context
         .selectFrom(ESCALATION_POLICY)
         .orderBy(ESCALATION_POLICY.NAME.asc(), ESCALATION_POLICY.ID.asc())
-        .fetch().map(::map)
-
+        .fetch().map { it.toResponse() }
     fun findById(id: Long): EscalationPolicyResponse? = context
         .selectFrom(ESCALATION_POLICY)
         .where(ESCALATION_POLICY.ID.eq(id))
-        .fetchOne()?.let(::map)
+        .fetchOne()?.toResponse()
 
     fun create(request: CreateEscalationPolicyRequest): EscalationPolicyResponse {
         request.reasonId?.let { reasonId ->
@@ -43,17 +42,6 @@ class EscalationPolicyService(private val context: DSLContext) {
             .returning()
             .fetchOne() ?: throw ResourceConflictException("An escalation policy with key ${request.key} already exists")
 
-        return map(record)
+        return record.toResponse()
     }
-
-    private fun map(record: EscalationPolicyRecord): EscalationPolicyResponse =
-        EscalationPolicyResponse(
-            id = record.id.required(),
-            key = record.key,
-            name = record.name,
-            description = record.description,
-            reasonId = record.reasonId,
-            enabled = record.enabled.required(),
-            createdAt = record.createdAt.required()
-        )
 }
